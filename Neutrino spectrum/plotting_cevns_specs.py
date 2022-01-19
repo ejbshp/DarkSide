@@ -17,23 +17,20 @@ lastbin = 50
 # loading data
 ds20k_cevns = np.loadtxt('ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
 bins = np.loadtxt('ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0]
-new_cevns = np.loadtxt('argon_spec_PE.txt',delimiter=' ')[firstbin:lastbin,1]
-new_bins = np.loadtxt('argon_spec_PE.txt',delimiter=' ')[firstbin:lastbin,0]
+new_cevns = np.loadtxt('argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,1]
+new_bins = np.loadtxt('argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,0]
+old_cevns = np.loadtxt('old_argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,1]
+old_bins = np.loadtxt('old_argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,0]
 
-
-
-# lew SM data energy vs rate
-er , spec = np.loadtxt('argon_spec.txt', delimiter=' ')
-# convert er from GeV to KeV
-er = er * 1e6
 
 # convert old cevns into events/tyr - dividing by ds20k exposure in tyr
-old_cevns = ds20k_cevns / 100
+ds20k_cevns = ds20k_cevns / 100
 
 # plotting
 f=plt.figure(figsize=(10,8))
 plt.plot(new_bins,new_cevns, label='New CEvNS', color='firebrick')
-plt.plot(bins,old_cevns, label='Old CEvNS')
+plt.plot(bins,ds20k_cevns, label='Old CEvNS already in PE')
+plt.plot(old_bins,old_cevns, label='Old CEvNS using my conversion')
 plt.xlabel('Number of electrons',fontsize=26)
 plt.ylabel('Events per tyr',fontsize=26) 
 plt.yscale('log')

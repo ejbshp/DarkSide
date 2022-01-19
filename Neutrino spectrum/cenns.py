@@ -31,7 +31,7 @@ class MakeWimpMigdalSpectra:
       self.s2_bin_edges = np.concatenate([self.s2bindf['start_ne'].values, [self.s2bindf['end_ne'].iloc[-1]]])
       self.s2_bin_centers     = self.s2bindf['linear_center_ne'].values
       self.responseER = self.build_map ("../detector_response/ds20k_ne_response_er.csv")
-      self.responseNR = self.build_map ("../detector_response/ds20k_ne_response_nr.csv")
+      self.responseNR = self.build_map ("remake_ds20k_ne_response_nr.csv")
       self.NRlowbound = 0.1  #self.responseNR['energy_bin_start_kev'].iloc[0]
       self.ERlowbound = 0.025 #self.responseER['energy_bin_start_kev'].iloc[0]
 
