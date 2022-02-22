@@ -2,6 +2,7 @@
 # cenns.py
 # Code has been edited and commented out to remove uncessary parts
 # Only interested in CEvNS NR - no ER or WIMP
+# sampling more
 ############
 
 import numpy as np
