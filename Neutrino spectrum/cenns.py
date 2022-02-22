@@ -16,7 +16,7 @@ from scipy.interpolate import RegularGridInterpolator
 operator = "O1"
 
 class MakeWimpMigdalSpectra:
-  def __init__(self, CS=1e-40, step=0.001, livetime=515.21, mass=46.7 * 0.97, entries=1000000, maxene=2, atomic_masss=39.948):
+  def __init__(self, CS=1e-40, step=0.001, livetime=515.21, mass=46.7 * 0.97, entries=1000, maxene=2, atomic_masss=39.948):
     self.CS        = CS
     self.maxene    = maxene
     self.step      = step
@@ -25,8 +25,6 @@ class MakeWimpMigdalSpectra:
     self.entries   = entries
     self.entries2d = entries*10
 
-    #self.wimp      = wimp_rate.WimpNR(atomic_masss)
-    # self.det       = response.DetectorResponse()
     self.ene       = np.linspace(0,maxene,int(maxene/step)+1)
 
     if atomic_masss < 100 :
@@ -40,36 +38,6 @@ class MakeWimpMigdalSpectra:
        self.responseNR = self.build_map ("remake_ds20k_ne_response_nr.csv")
        self.NRlowbound = 0.1  #self.responseNR['energy_bin_start_kev'].iloc[0]
        self.ERlowbound = 0.025 #self.responseER['energy_bin_start_kev'].iloc[0]
-# commenting out as atomic mass is <100
-#    else :
-#      self.dfmaps  = pd.read_csv("~/Downloads/%sData_Ar_Xe/XeFullData%s.dat"%(operator,operator),sep='\s+', header=None, names=['M','ER','NR','Rate'])
-#      self.dfnorm  = pd.read_csv("~/Downloads/%sData_Ar_Xe/Normalisations_Xe%s.dat"%(operator,operator), sep='\s+')
-#      self.s2bindf     = self.build_map ("../input_spectra/xe1t_s2only_data_release/s2_binning_info.csv")
-#      self.s2_bin_widths = (self.s2bindf['end_pe'] - self.s2bindf['start_pe']).values
-#      self.s2_bin_edges = np.concatenate([self.s2bindf['start_pe'].values, [self.s2bindf['end_pe'].iloc[-1]]])
-#      self.s2_bin_centers     = self.s2bindf['linear_center_pe'].values
-#      self.responseER = self.build_map ("../input_spectra/xe1t_s2only_data_release/s2_response_er.csv")
-#      self.responseNR = self.build_map ("../input_spectra/xe1t_s2only_data_release/s2_response_nr.csv")
-#      self.NRlowbound = 10 #self.responseNR['energy_bin_start_kev'].iloc[0]
-#      self.ERlowbound = 0.186 #self.responseER['energy_bin_start_kev'].iloc[0]
-
-#    self.table_masses_GeV                      = self.dfnorm["mass"].unique()
-    #self.table_integrals_per_kg_day_1Eneg40cm2 = self.dfnorm["integrated_rate"]  # this is for NR+Migdal at 1E-40 cm2
-    #self.table_er_fraction                     = self.dfnorm["ratio"]
-
-    #self.E_EM_max        = self.dfnorm["E_EM_max"]
-    #self.E_R_max         = self.dfnorm["E_R_max"]
-    #self.E_R_intervals   = self.dfnorm["E_R_interval"]
-
-    #self.E_R_steps       = self.dfnorm["E_R_max"]
-    #self.E_EM_steps      = self.dfnorm["E_EM_steps"]
-    #self.E_EM_intervals  = self.dfnorm["E_EM_interval"]
-
-    #self.energy_bin_starts_kev_er = self.responseER['energy_bin_start_kev'].values
-    #self.energy_bin_end_kev_er    = self.responseER['energy_bin_end_kev'].values
-    #self.energy_bins              = np.concatenate([ self.energy_bin_starts_kev_er, [self.energy_bin_end_kev_er[-1]]])
-
-    # self.fout = None
 
   def build_map (self,name) :
     mymap     = pd.read_csv(name,sep=",")
@@ -88,6 +56,10 @@ class MakeWimpMigdalSpectra:
     '''
     # changed this for my data
     enes , datasp = np.loadtxt('rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
+    self.enes = enes # storing the data in the object so i can use this in the
+    # other funcs easily !!!!! change this later
+    # doing the same with the spectrum
+    self.spectrum = datasp
     # dividing by the sum??
     datasp /= np.sum(datasp)
     return enes, datasp
@@ -119,20 +91,21 @@ class MakeWimpMigdalSpectra:
     nlist = []
     # loop through the array of energies that was created
     for e in energies :
-      nNR = 0
-      nER = 0
-      eNR = e[1]
-      eER = e[0] # always zero so there will be no ER contribution
-      if eNR < self.NRlowbound : nNR = 0 # below threshold
-      else :
+        nNR = 0
+        nER = 0
+        eNR = e[1]
+        eER = e[0] # always zero so there will be no ER contribution
+        # want to have more samples over threshold
+        # if energy below threshold sample again until energy is above threshold
+        while eNR < self.NRlowbound:
+            eNR = np.random.choice(self.enes,p=self.spectrum)
         nNR = self.convert_one_energy (eNR, self.responseNR, self.s2_bin_centers )
-      # ER
-      if eER < self.ERlowbound  : nER = 0
-      else :
-        nER = self.convert_one_energy (eER, self.responseER, self.s2_bin_centers )
-
-      ss = nER + nNR
-      nlist.append(ss)
+        # ER
+        if eER < self.ERlowbound  : nER = 0
+        else :
+            nER = self.convert_one_energy (eER, self.responseER, self.s2_bin_centers )
+        ss = nER + nNR
+        nlist.append(ss)
     return np.array(nlist)
 
   def get_wimp_migdal_spectrum_ne(self,  table_index=0):
