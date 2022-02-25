@@ -78,9 +78,21 @@ class MakeWimpMigdalSpectra:
 
   def get_sample(self,enes,spectrum):
     '''
-    sample from distribution
+    sample from distribution - but only above the threshold
+    To save on computation we want to only sample energies which above NRlowbound
     '''
-    ene = np.random.choice(enes,self.entries,p=spectrum)
+    # find the index of first value in the list above threshold
+    index = 0
+    while enes[index] < self.NRlowbound:
+        index += 1
+    # remove data from spec below threshold - and renormalise so it adds up to 1 still
+    enes_above_threshold = enes[index:]
+    spec_above_threshold = spectrum[index:]
+    # renormalise spec
+    normaliser = 1 / sum(spec_above_threshold)
+    norm_spec_above_threshold = normaliser * spec_above_threshold
+    # now sample energies
+    ene = np.random.choice(enes_above_threshold,self.entries,p=norm_spec_above_threshold)
     return ene
 
   def get_cenns(self)  :
@@ -195,6 +207,6 @@ if __name__ == '__main__':
 
   hNR, hEne= wimpMigdal.get_wimp_migdal_spectrum_ne()
 
-  fout  = ROOT.TFile("spectra_cenns1.root", "recreate")
+  fout  = ROOT.TFile("spectra_cenns_2.root", "recreate")
   hNR.Write("hNR_per_tonne_yr") ;
   hEne.Write("hEne_per_tonne_yr") ;
