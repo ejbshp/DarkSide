@@ -5,7 +5,7 @@ Created on Wed Nov 24 2021
 
 @author: EB
 
-Plotting neutrino spec
+Plotting neutrino spec and the ratio of the old spec to the new spec - All in Recoil energy
 """
 
 
@@ -53,3 +53,4 @@ f2=plt.figure(figsize=(12,8))
 plt.plot(xvals,ratio,'-o')
 plt.ylabel(r'Ratio of rate ', size=26)
 plt.xlabel(r'$E_R$ $[keV]$', size=26)
+
