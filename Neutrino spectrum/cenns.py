@@ -175,7 +175,7 @@ class MakeWimpMigdalSpectra:
       hEne.Fill(x)
 
     # 922.472  is the number of events expected per t.yr to produce a signal > 25 eV
-    hNR.Scale  ( 922.472 / self.entries ) # ??
+    hNR.Scale  ( 922.472 / self.entries ) # shouldn't need this ideally
 
     c = ROOT.TCanvas ('c','c',780,700)
     hNR.Draw()
