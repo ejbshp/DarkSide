@@ -13,14 +13,14 @@ import numpy as np
 from matplotlib import pyplot as plt
 
 # loading in SM neutrino data from theorists - New SM
-er , spec = np.loadtxt('argon_spec.txt', delimiter=' ')
+er , spec = np.loadtxt('data/argon_spec.txt', delimiter=' ')
 # convert er from GeV to KeV
 er = er * 1e6
 
 # Data from RH before conversion to PE
-old_er , old_spec = np.loadtxt('rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
+old_er , old_spec = np.loadtxt('data/rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
 
-ex_er , ex_spec = np.loadtxt('approx_of_recoil_E_from_NRfromCEVNSdoc.csv', delimiter=',', unpack=True)
+ex_er , ex_spec = np.loadtxt('data/approx_of_recoil_E_from_NRfromCEVNSdoc.csv', delimiter=',', unpack=True)
 
 # =============================================================================
 # plotting spectra together

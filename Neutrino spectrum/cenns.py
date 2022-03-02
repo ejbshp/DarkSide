@@ -17,7 +17,7 @@ from scipy.interpolate import RegularGridInterpolator
 operator = "O1"
 
 class MakeWimpMigdalSpectra:
-  def __init__(self, CS=1e-40, step=0.001, livetime=515.21, mass=46.7 * 0.97, entries=1000000, maxene=2, atomic_masss=39.948):
+  def __init__(self, CS=1e-40, step=0.001, livetime=515.21, mass=46.7 * 0.97, entries=2000, maxene=2, atomic_masss=39.948):
     self.CS        = CS
     self.maxene    = maxene
     self.step      = step
@@ -33,12 +33,12 @@ class MakeWimpMigdalSpectra:
     if atomic_masss < 100 :
     #  self.dfmaps  = pd.read_csv("~/Downloads/%sData_Ar_Xe/ArFullData%s.dat"%(operator,operator), sep='\s+', header=None, names=['M','ER','NR','Rate'])
      # self.dfnorm  = pd.read_csv("~/Downloads/%sData_Ar_Xe/Normalisations_Ar%s.dat"%(operator,operator), sep='\s+')
-       self.s2bindf     = self.build_map ("ds20k_s2_binning_info.csv")
+       self.s2bindf     = self.build_map ("data/ds20k_s2_binning_info.csv")
        self.s2_bin_widths = (self.s2bindf['end_ne'] - self.s2bindf['start_ne']).values
        self.s2_bin_edges = np.concatenate([self.s2bindf['start_ne'].values, [self.s2bindf['end_ne'].iloc[-1]]])
        self.s2_bin_centers     = self.s2bindf['linear_center_ne'].values
      # self.responseER = self.build_map ("../detector_response/ds20k_ne_response_er.csv")
-       self.responseNR = self.build_map ("remake_ds20k_ne_response_nr.csv")
+       self.responseNR = self.build_map ("data/remake_ds20k_ne_response_nr.csv")
        self.NRlowbound = 0.1  #self.responseNR['energy_bin_start_kev'].iloc[0]
        self.ERlowbound = 0.025 #self.responseER['energy_bin_start_kev'].iloc[0]
 # commenting out as atomic mass is <100
@@ -100,9 +100,11 @@ class MakeWimpMigdalSpectra:
     function which unpacks the CEvNS spectrum and normalises the spectrum by the sum
     '''
     # changed this for my data
-    enes , datasp = np.loadtxt('rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
+    enes , datasp = np.loadtxt('data/rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
     # dividing by the sum??
+    print(sum(datasp))
     datasp /= np.sum(datasp)
+    print(sum(datasp))
     return enes, datasp
 
   def get_wimp_spectrum_keV(self, Mw):
@@ -112,7 +114,7 @@ class MakeWimpMigdalSpectra:
 
   def convert_one_energy (self, eNR, response, s2_bin_centers) :
     #find the energy bin
-    if eNR > 15. : return 0 # changed from 5 to 15
+    if eNR > 1500. : return 0 # changed from 5 to 15
     #index = response['energy_bin_end_kev'].last_valid_index()
     else :
       index = response[(response.energy_bin_start_kev>eNR)]['energy_bin_start_kev'].index[0]
@@ -207,6 +209,6 @@ if __name__ == '__main__':
 
   hNR, hEne= wimpMigdal.get_wimp_migdal_spectrum_ne()
 
-  fout  = ROOT.TFile("spectra_cenns_2.root", "recreate")
+  fout  = ROOT.TFile("data/spectra_cenns.root", "recreate")
   hNR.Write("hNR_per_tonne_yr") ;
   hEne.Write("hEne_per_tonne_yr") ;

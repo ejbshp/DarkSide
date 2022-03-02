@@ -15,12 +15,12 @@ firstbin = 0
 lastbin = 50
 
 # loading data
-ds20k_cevns = np.loadtxt('ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
-bins = np.loadtxt('ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0]
-new_cevns = np.loadtxt('argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,1]
-new_bins = np.loadtxt('argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,0]
-old_cevns = np.loadtxt('old_argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,1]
-old_bins = np.loadtxt('old_argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,0]
+ds20k_cevns = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
+bins = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0]
+new_cevns = np.loadtxt('data/argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,1]
+new_bins = np.loadtxt('data/argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,0]
+old_cevns = np.loadtxt('data/old_argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,1]
+old_bins = np.loadtxt('data/old_argon_spec_PE_multw.txt',delimiter=' ')[firstbin:lastbin,0]
 
 
 # convert old cevns into events/tyr - dividing by ds20k exposure in tyr

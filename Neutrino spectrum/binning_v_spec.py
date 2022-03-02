@@ -14,7 +14,7 @@ import bisect
 from matplotlib import pyplot as plt
 
 # loading in SM neutrino data from theorists - New SM
-er , spec = np.loadtxt('argon_spec.txt', delimiter=' ')
+er , spec = np.loadtxt('data/argon_spec.txt', delimiter=' ')
 # convert er from GeV to KeV
 er = er * 1e6
 
@@ -30,7 +30,7 @@ er = er * 1e6
 # =============================================================================
 # loadinng in bin ends 
 col_list = ['energy_bin_end_kev']
-df = pd.read_csv('remake_ds20k_ne_response_nr.csv', usecols=col_list)
+df = pd.read_csv('data/remake_ds20k_ne_response_nr.csv', usecols=col_list)
 max_e = df.energy_bin_end_kev.to_list()
 
 
@@ -57,7 +57,7 @@ for e in max_e:
 # =============================================================================
 # loadinng in bin ends 
 col_list = ['energy_bin_end_kev']
-df = pd.read_csv('remake_ds20k_ne_response_nr.csv', usecols=col_list)
+df = pd.read_csv('data/remake_ds20k_ne_response_nr.csv', usecols=col_list)
 max_e = df.energy_bin_end_kev.to_list()
 
 

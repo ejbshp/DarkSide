@@ -14,23 +14,23 @@ import random
 import bisect
 
 # loading in SM neutrino data from theorists - New SM
-er , spec = np.loadtxt('argon_spec.txt', delimiter=' ')
+er , spec = np.loadtxt('data/argon_spec.txt', delimiter=' ')
 # convert er from GeV to KeV
 er = er * 1e6
 # loading in old SM - already in 
-old_er , old_spec = np.loadtxt('rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
+old_er , old_spec = np.loadtxt('data/rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
 
 
 
 
 # importing energy bins
 col_list = ['energy_bin_start_kev','energy_bin_end_kev']
-df = pd.read_csv('remake_ds20k_ne_response_nr.csv', usecols=col_list)
+df = pd.read_csv('data/remake_ds20k_ne_response_nr.csv', usecols=col_list)
 ebin_start = df.energy_bin_start_kev.to_list()
 ebin_end = df.energy_bin_end_kev.to_list()
 
 # importing electron bin probabilities
-df2 = pd.read_csv('remake_ds20k_ne_response_nr.csv', usecols=range(3,203))
+df2 = pd.read_csv('data/remake_ds20k_ne_response_nr.csv', usecols=range(3,203))
 ne_probs = df2.values.tolist()
 
    
@@ -42,15 +42,18 @@ ne_probs = df2.values.tolist()
 # empty array for np count
 pe_count = np.zeros(len(ne_probs[0]))
 
+# sampling more then diving by thid number
+mult = 1
+
 # getting PE count for the data given
 for j in range(len(er)-1): # can't calculate diff for last point
     energy = er[j]
     rate = spec[j]
     # multiply by the width of the energy bin - approx as distance between each point
     width = er[j+1]-er[j]
-    rate = width * rate
+    rate =  rate * mult # sampling more
     # if energy is less than 0.1 no PE produced - so can skip sampling
-    if energy < 0.1:
+    if energy < 0.1 or energy > 15.:
         pe_count[0] += rate
     else:
         # loop though to find energy bin
@@ -66,7 +69,9 @@ for j in range(len(er)-1): # can't calculate diff for last point
                     pe_count[ne.pop()] += 1
                     rate -= 1
                 break
-            
+# dividing by number of times sampled
+pe_count /= mult
+
 
 
 # Ne bins
@@ -76,7 +81,7 @@ bins = np.arange(len(pe_count))
 # Writing data to file
 # =============================================================================
 
-file = open('argon_spec_PE_multw.txt', 'w')
+file = open('data/argon_spec_PE_multw.txt', 'w')
 for n in bins:
     file.write(str(n) + ' ' + str(pe_count[n]) + '\n')
 file.close()
@@ -93,7 +98,7 @@ for i in range(len(er)-1):
 #!!! this is weird - doesn't really work
 
 col_list = ['energy_bin_end_kev']
-df = pd.read_csv('remake_ds20k_ne_response_nr.csv', usecols=col_list)
+df = pd.read_csv('data/remake_ds20k_ne_response_nr.csv', usecols=col_list)
 max_e = df.energy_bin_end_kev.to_list()
 
 
@@ -134,7 +139,7 @@ bins = np.arange(len(pe_count))
 # Writing data to file
 # =============================================================================
 
-file = open('argon_spec_PE_rebin.txt', 'w')
+file = open('data/argon_spec_PE_rebin.txt', 'w')
 for n in bins:
     file.write(str(n) + ' ' + str(pe_count[n]) + '\n')
 file.close()
@@ -187,7 +192,7 @@ bins = np.arange(len(pe_count))
 # Writing data to file
 # =============================================================================
 
-file = open('old_argon_spec_PE_multw.txt', 'w')
+file = open('data/old_argon_spec_PE_multw.txt', 'w')
 for n in bins:
     file.write(str(n) + ' ' + str(pe_count[n]) + '\n')
 file.close()
