@@ -18,6 +18,12 @@ er , spec = np.loadtxt('data/argon_spec.txt', delimiter=' ')
 # convert er from GeV to KeV
 er = er * 1e6
 
+
+####### remove this - using paolo's spec
+# loading in old SM - already in 
+er , spec = np.loadtxt('data/rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
+
+
 # max energy value is 100
 # want to bin the data in 0.1keV wide bins 
 # integrate the values eg bettween 0 and 0.1keV

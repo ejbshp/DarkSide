@@ -114,7 +114,7 @@ class MakeWimpMigdalSpectra:
 
   def convert_one_energy (self, eNR, response, s2_bin_centers) :
     #find the energy bin
-    if eNR > 1500. : return 0 # changed from 5 to 15
+    if eNR > 5. : return 0 
     #index = response['energy_bin_end_kev'].last_valid_index()
     else :
       index = response[(response.energy_bin_start_kev>eNR)]['energy_bin_start_kev'].index[0]

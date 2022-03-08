@@ -42,8 +42,8 @@ ne_probs = df2.values.tolist()
 # empty array for np count
 pe_count = np.zeros(len(ne_probs[0]))
 
-# sampling more then diving by thid number
-mult = 1
+# sampling more then diving by this number
+mult = 1000
 
 # getting PE count for the data given
 for j in range(len(er)-1): # can't calculate diff for last point
@@ -51,9 +51,9 @@ for j in range(len(er)-1): # can't calculate diff for last point
     rate = spec[j]
     # multiply by the width of the energy bin - approx as distance between each point
     width = er[j+1]-er[j]
-    rate =  rate * mult # sampling more
+    rate = width * rate * mult # sampling more
     # if energy is less than 0.1 no PE produced - so can skip sampling
-    if energy < 0.1 or energy > 15.:
+    if energy < 0.1:
         pe_count[0] += rate
     else:
         # loop though to find energy bin
