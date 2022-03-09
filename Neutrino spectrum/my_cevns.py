@@ -15,15 +15,19 @@ Converts neutrino spectrum data from recoil energy into Photoelectrons and then 
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
-import random
 import bisect
+
+
+# =============================================================================
+# Importing data
+# =============================================================================
 
 # loading in SM neutrino data from Andrew
 er , spec = np.loadtxt('data/argon_spec.txt', delimiter=' ')
 # convert er from GeV to KeV
 er = er * 1e6
 
-####### remove this - using paolo's spec
+####### remove this - using paolo's spec overwriting andrew's spec
 # loading in old SM - already in 
 er , spec = np.loadtxt('data/rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
 
@@ -46,52 +50,56 @@ s2_pe_bin_centres = df.linear_center_ne.to_list()
 s2_start_pe = df.start_ne.to_list()
 
 
-
 # =============================================================================
 # Converting er to No of PE - multiplying by width
 # =============================================================================
 
-
-# empty list to add pe response to
+# empty list to add pe response to - list of number of PE produced in an event
 pe_list = []
 
 # multiply to sample more - smooth things out
-mult = 10000
+mult = 1000
 
-# getting PE count for the data given
+# getting PE count for the data given - loop though every energy
 for j in range(len(er)-1): # can't calculate diff for last point
+    
+    # get energy and rate at that point
     energy = er[j]
     rate = spec[j]
+    
     # multiply by the width of the energy bin - approx as distance between each point
     width = er[j+1]-er[j]
-    rate = width * rate * mult # mult to sample more
+    rate = width * rate * mult # mult to sample more - divide by this later
+    
     # if energy is less than 0.1 no PE produced - so can skip sampling - round rate to int
     if energy < 0.1 or energy >5.0: # adding in greater than 5 as in cenns.py
+    
+        # add 0 PE to the pe_list as many times as you would sample
         l = [0.0] * int(rate)
         pe_list.extend(l)
+        
     else:
+        
         # find index of energy bin - note doesn't count from zero
         index = bisect.bisect_left(ebin_start, energy) - 1
+        
         # get response func probabilities for that energy bin
-        # if the s2 probs empty for that E it will be bin 0 - skip sampling
-        if sum(s2_probs_list[index]) == 0.0:
-            l = [0.0] * int(rate)
-            pe_list.extend(l)
-        else:  # need to sample
-            # if not empty normalise so all the values add up to 1
-            normaliser = 1.0 / sum(s2_probs_list[index])
-            s2_bin_probs = [i * normaliser for i in s2_probs_list[index]] # just multipying the whole list by norm
+        # if not empty normalise so all the values add up to 1
+        normaliser = 1.0 / sum(s2_probs_list[index])
+        s2_bin_probs = [i * normaliser for i in s2_probs_list[index]] # just multipying the whole list by norm
             
-            # sample from the probs_list
-            # number of times we sample = rate for that energy bin
-            while rate > 1: # changed to 1 - so events less than 1 but
-                rate -= 1
-                # sampling from our distribution for that energy bin
-                s2_bin_no = np.random.choice( len(s2_bin_probs), p=s2_bin_probs, size=None)
-                # get number of PE and scale within bin width
-                pe_no = s2_pe_bin_centres[s2_bin_no] * energy / ebin_centre[index]
-                # add to list
-                pe_list.append(pe_no)
+        # sample from the probs_list
+        # number of times we sample = rate for that energy bin
+        while rate > 1:
+            
+            rate -= 1
+            # sampling from our distribution for that energy bin
+            s2_bin_no = np.random.choice( len(s2_bin_probs), p=s2_bin_probs, size=None)
+            # get number of PE and scale within bin width
+            pe_no = s2_pe_bin_centres[s2_bin_no] * energy / ebin_centre[index]
+            # add to list
+            pe_list.append(pe_no)
+
             
 # =============================================================================
 # Binning the pe_list data - and dividing by mult
@@ -102,10 +110,24 @@ pe_no, bin_edges = np.histogram(pe_list, s2_start_pe)
 # dividing by mult
 pe_no = pe_no / mult
 
+
+#%%
+
+# rebinning into 1 PE wide bins
+
+cenns = []
+for i in range(int(len(pe_no)/2)) :
+    cenns.append((pe_no[i*2]+pe_no[i*2+1])) # joint adjacent bins as they are 0.5 e wide ( to make them 1e- wide)
+cenns = np.array(cenns)[0:50]
+
+
+
+
 # =============================================================================
 # Plotting
 # =============================================================================
-    
+
+
 firstbin = 0
 lastbin = 50
 
@@ -120,8 +142,10 @@ ds20k_cevns = ds20k_cevns / 100
 # plotting
 f=plt.figure(figsize=(10,8))
 plt.plot(bins,ds20k_cevns, label='Old CEvNS already in PE')
-plt.plot(s2_pe_bin_centres[:199], pe_no, label='Using s2 binning info')
+plt.plot(bins, cenns, label='Using s2 binning info + 1PE wide bins')
 
+#plt.grid()
+#plt.xlim(0,50)
 plt.xlabel('Number of electrons',fontsize=26)
 plt.ylabel('Events per tyr',fontsize=26) 
 plt.yscale('log')
