@@ -17,7 +17,7 @@ from scipy.interpolate import RegularGridInterpolator
 operator = "O1"
 
 class MakeWimpMigdalSpectra:
-  def __init__(self, CS=1e-40, step=0.001, livetime=515.21, mass=46.7 * 0.97, entries=2000, maxene=2, atomic_masss=39.948):
+  def __init__(self, CS=1e-40, step=0.001, livetime=515.21, mass=46.7 * 0.97, entries=250000, maxene=2, atomic_masss=39.948):
     self.CS        = CS
     self.maxene    = maxene
     self.step      = step
@@ -114,7 +114,7 @@ class MakeWimpMigdalSpectra:
 
   def convert_one_energy (self, eNR, response, s2_bin_centers) :
     #find the energy bin
-    if eNR > 5. : return 0 
+    if eNR > 5. : return 0
     #index = response['energy_bin_end_kev'].last_valid_index()
     else :
       index = response[(response.energy_bin_start_kev>eNR)]['energy_bin_start_kev'].index[0]

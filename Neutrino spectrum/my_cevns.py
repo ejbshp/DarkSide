@@ -16,6 +16,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import bisect
+import uproot
 
 
 # =============================================================================
@@ -115,10 +116,10 @@ pe_no = pe_no / mult
 
 # rebinning into 1 PE wide bins
 
-cenns = []
+cenns1 = []
 for i in range(int(len(pe_no)/2)) :
-    cenns.append((pe_no[i*2]+pe_no[i*2+1])) # joint adjacent bins as they are 0.5 e wide ( to make them 1e- wide)
-cenns = np.array(cenns)[0:50]
+    cenns1.append((pe_no[i*2]+pe_no[i*2+1])) # joint adjacent bins as they are 0.5 e wide ( to make them 1e- wide)
+cenns1 = np.array(cenns1)[0:50]
 
 
 
@@ -139,10 +140,28 @@ bins = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0
 # convert old cevns into events/tyr - dividing by ds20k exposure in tyr
 ds20k_cevns = ds20k_cevns / 100
 
+
+# get data from cenns.py root files
+
+# not in darkside 50 - from RH a simulation they did
+cenns = 'data/spectra_cenns.root'
+cenns_data = uproot.open(cenns)
+hist = cenns_data['hNR_per_tonne_yr']
+cenns_events_pertonneyr = np.array(hist.values(),dtype='float64')
+cennsbkgrd = []
+for i in range(int(len(cenns_events_pertonneyr)/2)) :
+    cennsbkgrd.append((cenns_events_pertonneyr[i*2]+cenns_events_pertonneyr[i*2+1])) # joint adjacent bins as they are 0.5 e wide ( to make them 1e- wide)
+cennsbkgrd = np.array(cennsbkgrd)[0:50]
+
+
+
+
+
 # plotting
 f=plt.figure(figsize=(10,8))
 plt.plot(bins,ds20k_cevns, label='Old CEvNS already in PE')
-plt.plot(bins, cenns, label='Using s2 binning info + 1PE wide bins')
+plt.plot(bins, cenns1, label='Using s2 binning info + 1PE wide bins')
+plt.plot(bins, cennsbkgrd, label='from cenns.py')
 
 #plt.grid()
 #plt.xlim(0,50)
