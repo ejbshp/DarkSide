@@ -18,6 +18,8 @@ import pandas as pd
 import bisect
 import uproot
 
+import beepy # beeps 4 me
+
 
 # =============================================================================
 # Importing data
@@ -30,7 +32,7 @@ er = er * 1e6
 
 ####### remove this - using paolo's spec overwriting andrew's spec
 # loading in old SM - already in 
-er , spec = np.loadtxt('data/rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
+#er , spec = np.loadtxt('data/rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
 
 
 # importing energy bins - from response func
@@ -59,7 +61,7 @@ s2_start_pe = df.start_ne.to_list()
 pe_list = []
 
 # multiply to sample more - smooth things out
-mult = 1000
+mult = 5000
 
 # getting PE count for the data given - loop though every energy
 for j in range(len(er)-1): # can't calculate diff for last point
@@ -73,13 +75,7 @@ for j in range(len(er)-1): # can't calculate diff for last point
     rate = width * rate * mult # mult to sample more - divide by this later
     
     # if energy is less than 0.1 no PE produced - so can skip sampling - round rate to int
-    if energy < 0.1 or energy >5.0: # adding in greater than 5 as in cenns.py
-    
-        # add 0 PE to the pe_list as many times as you would sample
-        l = [0.0] * int(rate)
-        pe_list.extend(l)
-        
-    else:
+    if energy > 0.1 and energy <4.3: # not recording values under threshold
         
         # find index of energy bin - note doesn't count from zero
         index = bisect.bisect_left(ebin_start, energy) - 1
@@ -112,17 +108,24 @@ pe_no, bin_edges = np.histogram(pe_list, s2_start_pe)
 pe_no = pe_no / mult
 
 
-#%%
+
 
 # rebinning into 1 PE wide bins
 
-cenns1 = []
+my_cevns = []
 for i in range(int(len(pe_no)/2)) :
-    cenns1.append((pe_no[i*2]+pe_no[i*2+1])) # joint adjacent bins as they are 0.5 e wide ( to make them 1e- wide)
-cenns1 = np.array(cenns1)[0:50]
+    my_cevns.append((pe_no[i*2]+pe_no[i*2+1])) # joint adjacent bins as they are 0.5 e wide ( to make them 1e- wide)
+my_cevns = np.array(my_cevns)[0:50]
 
 
 
+
+
+# done
+beepy.beep()
+
+
+#%%
 
 # =============================================================================
 # Plotting
@@ -141,32 +144,20 @@ bins = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0
 ds20k_cevns = ds20k_cevns / 100
 
 
-# get data from cenns.py root files
-
-# not in darkside 50 - from RH a simulation they did
-cenns = 'data/spectra_cenns.root'
-cenns_data = uproot.open(cenns)
-hist = cenns_data['hNR_per_tonne_yr']
-cenns_events_pertonneyr = np.array(hist.values(),dtype='float64')
-cennsbkgrd = []
-for i in range(int(len(cenns_events_pertonneyr)/2)) :
-    cennsbkgrd.append((cenns_events_pertonneyr[i*2]+cenns_events_pertonneyr[i*2+1])) # joint adjacent bins as they are 0.5 e wide ( to make them 1e- wide)
-cennsbkgrd = np.array(cennsbkgrd)[0:50]
-
-
-
-
-
 # plotting
 f=plt.figure(figsize=(10,8))
-plt.plot(bins,ds20k_cevns, label='Old CEvNS already in PE')
-plt.plot(bins, cenns1, label='Using s2 binning info + 1PE wide bins')
-plt.plot(bins, cennsbkgrd, label='from cenns.py')
+
+plt.plot(bins, my_cevns, '-+',markersize=15, label='Using my_cevns 4.3kev cut Andrews spec', color='firebrick')
+plt.plot(bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
+
 
 #plt.grid()
-#plt.xlim(0,50)
+plt.xlim(0,50)
 plt.xlabel('Number of electrons',fontsize=26)
 plt.ylabel('Events per tyr',fontsize=26) 
 plt.yscale('log')
-plt.legend(fontsize=18,frameon=False,loc=9)
+plt.legend(fontsize=18,frameon=False,loc='upper right')
+
+
+
 
