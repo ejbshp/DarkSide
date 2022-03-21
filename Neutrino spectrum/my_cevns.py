@@ -16,9 +16,7 @@ from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
 import bisect
-import uproot
 
-import beepy # beeps 4 me
 
 
 # =============================================================================
@@ -29,10 +27,6 @@ import beepy # beeps 4 me
 er , spec = np.loadtxt('data/argon_spec.txt', delimiter=' ')
 # convert er from GeV to KeV
 er = er * 1e6
-
-####### remove this - using paolo's spec overwriting andrew's spec
-# loading in old SM - already in 
-#er , spec = np.loadtxt('data/rateTOTAr_old_spec_for_comparison.txt', delimiter='\t', unpack=True)
 
 
 # importing energy bins - from response func
@@ -60,8 +54,14 @@ s2_start_pe = df.start_ne.to_list()
 # empty list to add pe response to - list of number of PE produced in an event
 pe_list = []
 
+# define variables
 # multiply to sample more - smooth things out
-mult = 5000
+mult = 10000
+lower_threshold = 0.1 #kev
+upper_threshold = 5 #kev
+
+# who is the input spec from
+data_source = 'A' # andrew
 
 # getting PE count for the data given - loop though every energy
 for j in range(len(er)-1): # can't calculate diff for last point
@@ -75,7 +75,7 @@ for j in range(len(er)-1): # can't calculate diff for last point
     rate = width * rate * mult # mult to sample more - divide by this later
     
     # if energy is less than 0.1 no PE produced - so can skip sampling - round rate to int
-    if energy > 0.1 and energy <4.3: # not recording values under threshold
+    if energy > lower_threshold and energy < upper_threshold: # not recording values under threshold
         
         # find index of energy bin - note doesn't count from zero
         index = bisect.bisect_left(ebin_start, energy) - 1
@@ -109,20 +109,27 @@ pe_no = pe_no / mult
 
 
 
-
 # rebinning into 1 PE wide bins
 
 my_cevns = []
 for i in range(int(len(pe_no)/2)) :
     my_cevns.append((pe_no[i*2]+pe_no[i*2+1])) # joint adjacent bins as they are 0.5 e wide ( to make them 1e- wide)
-my_cevns = np.array(my_cevns)[0:50]
+my_cevns = np.array(my_cevns)
 
+# getting new bin centres
+bins = bin_edges[1::2]
 
+# =============================================================================
+# Writing data to file
+# =============================================================================
+filename = 'output_my_cevns/PE_argon_' + data_source + '_' + str(upper_threshold) + '.txt'
+file = open(filename, 'w')
 
+for n in range(len(bins)-1):
+    file.write(str(bins[n]) + ' ' + str(my_cevns[n]) + '\n')
+    
+file.close()
 
-
-# done
-beepy.beep()
 
 
 #%%
@@ -135,9 +142,13 @@ beepy.beep()
 firstbin = 0
 lastbin = 50
 
+cevns = np.loadtxt('output_my_cevns/PE_argon_A_5.txt',delimiter=' ')[firstbin:lastbin,1]
+bins = np.loadtxt('output_my_cevns/PE_argon_A_5.txt',delimiter=' ')[firstbin:lastbin,0]
+
+
 # loading data - for comparison
 ds20k_cevns = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
-bins = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0]
+ds20k_bins = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0]
 
 
 # convert old cevns into events/tyr - dividing by ds20k exposure in tyr
@@ -147,8 +158,8 @@ ds20k_cevns = ds20k_cevns / 100
 # plotting
 f=plt.figure(figsize=(10,8))
 
-plt.plot(bins, my_cevns, '-+',markersize=15, label='Using my_cevns 4.3kev cut Andrews spec', color='firebrick')
-plt.plot(bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
+plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
+plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
 
 
 #plt.grid()
