@@ -58,8 +58,7 @@ pe_list = []
 # multiply to sample more - smooth things out
 mult = 10000
 lower_threshold = 0.1 #kev
-upper_threshold = 5 #kev
-
+upper_threshold = 500 #kev # no upper limit
 # who is the input spec from
 data_source = 'A' # andrew
 
@@ -82,6 +81,8 @@ for j in range(len(er)-1): # can't calculate diff for last point
         
         # get response func probabilities for that energy bin
         # if not empty normalise so all the values add up to 1
+        # check that the sum is not zero
+        if sum(s2_probs_list[index]) == 0: break
         normaliser = 1.0 / sum(s2_probs_list[index])
         s2_bin_probs = [i * normaliser for i in s2_probs_list[index]] # just multipying the whole list by norm
             
@@ -142,8 +143,11 @@ file.close()
 firstbin = 0
 lastbin = 50
 
-cevns = np.loadtxt('output_my_cevns/PE_argon_A_5.txt',delimiter=' ')[firstbin:lastbin,1]
-bins = np.loadtxt('output_my_cevns/PE_argon_A_5.txt',delimiter=' ')[firstbin:lastbin,0]
+cevns = np.loadtxt('output_my_cevns/PE_argon_RH_5.txt',delimiter=' ')[firstbin:100,1]
+bins = np.loadtxt('output_my_cevns/PE_argon_RH_5.txt',delimiter=' ')[firstbin:100,0]
+
+cevns2 = np.loadtxt('output_my_cevns/PE_argon_A_5.txt',delimiter=' ')[firstbin:100,1]
+
 
 
 # loading data - for comparison
@@ -158,12 +162,13 @@ ds20k_cevns = ds20k_cevns / 100
 # plotting
 f=plt.figure(figsize=(10,8))
 
-plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
+plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns RH', color='firebrick')
+plt.plot(bins, cevns2, '-+',markersize=15, label='Using my_cevns A', color='slategray')
 plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
 
 
 #plt.grid()
-plt.xlim(0,50)
+plt.xlim(0,45)
 plt.xlabel('Number of electrons',fontsize=26)
 plt.ylabel('Events per tyr',fontsize=26) 
 plt.yscale('log')
