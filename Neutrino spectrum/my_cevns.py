@@ -5,6 +5,7 @@ my_cevns.py
 
 March 2 2022 - Copy of neutrinospec_conversion_ERtoPE - cutting out a binning method.
 March 4 2022 - Editing to change the bins, bins in the response function are half electron.
+April 7 2022 - Changing upper limit to use last value in the dist - removing upper threshold
 
 author: EB
 
@@ -56,11 +57,13 @@ pe_list = []
 
 # define variables
 # multiply to sample more - smooth things out
-mult = 10000
+mult = 5000
 lower_threshold = 0.1 #kev
-upper_threshold = 500 #kev # no upper limit
 # who is the input spec from
 data_source = 'A' # andrew
+
+# to get last probs in response map
+ran = False
 
 # getting PE count for the data given - loop though every energy
 for j in range(len(er)-1): # can't calculate diff for last point
@@ -74,17 +77,26 @@ for j in range(len(er)-1): # can't calculate diff for last point
     rate = width * rate * mult # mult to sample more - divide by this later
     
     # if energy is less than 0.1 no PE produced - so can skip sampling - round rate to int
-    if energy > lower_threshold and energy < upper_threshold: # not recording values under threshold
+    if energy > lower_threshold: # not recording values under threshold
         
         # find index of energy bin - note doesn't count from zero
         index = bisect.bisect_left(ebin_start, energy) - 1
         
         # get response func probabilities for that energy bin
         # if not empty normalise so all the values add up to 1
-        # check that the sum is not zero
-        if sum(s2_probs_list[index]) == 0: break
-        normaliser = 1.0 / sum(s2_probs_list[index])
-        s2_bin_probs = [i * normaliser for i in s2_probs_list[index]] # just multipying the whole list by norm
+        
+        # getting last value in reponse map to use for the higher energy values
+        if sum(s2_probs_list[index]) == 0 and ran == False:
+            ran = True
+            # get last bin probs and normalise
+            norm = 1.0 / sum(s2_probs_list[index-1])
+            last_bin_prob = [i * norm for i in s2_probs_list[index-1]]
+            s2_bin_probs = last_bin_prob
+        elif sum(s2_probs_list[index]) == 0: # if the last probs has already been found
+            s2_bin_probs = last_bin_prob
+        else: # if the probs are not zero
+            normaliser = 1.0 / sum(s2_probs_list[index])
+            s2_bin_probs = [i * normaliser for i in s2_probs_list[index]] # just multipying the whole list by norm
             
         # sample from the probs_list
         # number of times we sample = rate for that energy bin
@@ -123,7 +135,7 @@ bins = bin_edges[1::2]
 # =============================================================================
 # Writing data to file
 # =============================================================================
-filename = 'output_my_cevns/PE_argon_' + data_source + '_' + str(upper_threshold) + '.txt'
+filename = 'output_my_cevns/PE_argon_SM_' + data_source + '.txt'
 file = open(filename, 'w')
 
 for n in range(len(bins)-1):
@@ -141,13 +153,10 @@ file.close()
 
 
 firstbin = 0
-lastbin = 50
+lastbin = 60
 
-cevns = np.loadtxt('output_my_cevns/PE_argon_RH_5.txt',delimiter=' ')[firstbin:100,1]
-bins = np.loadtxt('output_my_cevns/PE_argon_RH_5.txt',delimiter=' ')[firstbin:100,0]
-
-cevns2 = np.loadtxt('output_my_cevns/PE_argon_A_5.txt',delimiter=' ')[firstbin:100,1]
-
+cevns = np.loadtxt('output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[firstbin:lastbin,1]
+bins = np.loadtxt('output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[firstbin:lastbin,0]
 
 
 # loading data - for comparison
@@ -162,18 +171,12 @@ ds20k_cevns = ds20k_cevns / 100
 # plotting
 f=plt.figure(figsize=(10,8))
 
-plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns RH', color='firebrick')
-plt.plot(bins, cevns2, '-+',markersize=15, label='Using my_cevns A', color='slategray')
+plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
 plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
 
-
-#plt.grid()
-plt.xlim(0,45)
 plt.xlabel('Number of electrons',fontsize=26)
 plt.ylabel('Events per tyr',fontsize=26) 
 plt.yscale('log')
 plt.legend(fontsize=18,frameon=False,loc='upper right')
-
-
 
 
