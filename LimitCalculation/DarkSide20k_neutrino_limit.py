@@ -27,15 +27,14 @@ ds20k_exposure = 365*1000*100 # exposure in kgday
 ds20k_exposure_tonneyear = 100 # exposure in tyr - 5yr run with fiducial mass of 20t
 
 # the data is in number of electrons. use a 4e- threshold
-firstbin = 0 #!!! usually 4
-lastbin =  50 #!!! usually 50
+firstbin = 4 # usually 4
+lastbin = 50 # usually 50
 
 # 15% uncertainty on backgrounds
 per_err = 0.15
 
-#!!! multiplying cevns signal
-mult = 1
 
+singlebin = False #!!! change this if needed. single/multi bin fit = true/false
 
 # =============================================================================
 #  importing data
@@ -55,16 +54,41 @@ gammabkgrd_dplus = gammabkgrd_p - gammabkgrd
 gammabkgrd_dminus = gammabkgrd_m - gammabkgrd
 
 
-# neutrino signal
-cennssig = np.loadtxt('Data_files/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]*mult #!!! making cenns sig bigger
-cennssig_p = np.loadtxt('Data_files/ds20k-cenns_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1]*mult #!!!
-cennssig_m = np.loadtxt('Data_files/ds20k-cenns_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1]*mult #!!!
+# # neutrino signal
+# cennssig = np.loadtxt('Data_files/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
+# cennssig_p = np.loadtxt('Data_files/ds20k-cenns_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1]
+# cennssig_m = np.loadtxt('Data_files/ds20k-cenns_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1]
+# cennssig_dplus = cennssig_p - cennssig
+# cennssig_dminus = cennssig_m - cennssig
+
+#!!! Using new neutrino signal - multiplying bu ds20kl exposure
+cennssig = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[firstbin:lastbin,1]*ds20k_exposure_tonneyear
+# no energy scaling on cenns
+cennssig_p = 0
+cennssig_m = 0
 cennssig_dplus = cennssig_p - cennssig
 cennssig_dminus = cennssig_m - cennssig
+
+
 
 # get bins
 bins = (np.loadtxt('Data_files/ds20k-39Ar_bkgrd.dat',delimiter=' '))[firstbin:lastbin,0]
 
+
+# single bin
+if singlebin == True: # summing all of the input arrays
+    
+    ar38bkgrd = sum(ar38bkgrd)
+    ar38bkgrd_dplus = sum(ar38bkgrd_dplus)
+    ar38bkgrd_dminus = sum(ar38bkgrd_dminus)
+    
+    gammabkgrd = sum(gammabkgrd)
+    gammabkgrd_dplus = sum(gammabkgrd_dplus)
+    gammabkgrd_dminus = sum(gammabkgrd_dminus)
+    
+    cennssig = sum(cennssig)
+    cennssig_dplus = sum(cennssig_dplus)
+    cennssig_dminus = sum(cennssig_dminus)
 
 # =============================================================================
 # Defining functions
@@ -83,19 +107,30 @@ def construct_covariance (uncertainty_amplitudes, correlation_matrix) :
     
     Returns the covariance matrix
     '''
-    num_measurements = len(uncertainty_amplitudes)
-    # uncertaities uncorrelated - matrix of zeros with diagonal values of one (uncertainties are correlated only with themselves)
-    if (type(correlation_matrix) is int) and (correlation_matrix == 0) :
-        correlation_matrix = np.eye(num_measurements)
-    # uncertainties correlated - matrix of ones (all uncertainties fully correlated)
-    elif (type(correlation_matrix) is int) and (correlation_matrix == 1) :
-        correlation_matrix = np.ones(shape=(num_measurements,num_measurements))
-    # creating covariance matrix - Covij = Corrij x erri x errj
-    covariance_matrix = np.zeros(shape=(num_measurements, num_measurements))    
-    for i, ex in enumerate(uncertainty_amplitudes) :
-        for j, ey in enumerate(uncertainty_amplitudes) :
-            covariance_matrix[i, j] = correlation_matrix[i, j]*ex*ey
-    return covariance_matrix
+    if singlebin == True: 
+        print('herhe!!')
+        # uncorrelated - however we only have one measurement
+        # this has to be fully correlated with itself
+        if correlation_matrix == 0:
+            covariance_matrix = 1
+        # correlated - use formula - covij = corrij x erri x errj
+        elif correlation_matrix == 1:
+            covariance_matrix = uncertainty_amplitudes**2
+        return covariance_matrix
+    else: 
+        num_measurements = len(uncertainty_amplitudes)
+        # uncertaities uncorrelated - matrix of zeros with diagonal values of one (uncertainties are correlated only with themselves)
+        if (type(correlation_matrix) is int) and (correlation_matrix == 0) :
+            correlation_matrix = np.eye(num_measurements)
+        # uncertainties correlated - matrix of ones (all uncertainties fully correlated)
+        elif (type(correlation_matrix) is int) and (correlation_matrix == 1) :
+            correlation_matrix = np.ones(shape=(num_measurements,num_measurements))
+        # creating covariance matrix - Covij = Corrij x erri x errj
+        covariance_matrix = np.zeros(shape=(num_measurements, num_measurements))    
+        for i, ex in enumerate(uncertainty_amplitudes) :
+            for j, ey in enumerate(uncertainty_amplitudes) :
+                covariance_matrix[i, j] = correlation_matrix[i, j]*ex*ey
+        return covariance_matrix
 
 
 def get_prediction (c,energyscaleAr_NP) :
@@ -275,8 +310,13 @@ data_stat_covariance = construct_covariance(data_stat_uncertainties, 0)
 
 # now get the total covariance matrix and inverse/det for use in likelihood calc
 total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance
-total_cov_inverse = np.linalg.inv(total_cov)
-total_cov_det = np.linalg.det(total_cov)
+
+if singlebin == True: 
+    print('HERE')
+    total_cov_det =  1 / total_cov
+else: 
+    total_cov_inverse = np.linalg.inv(total_cov)
+    total_cov_det = np.linalg.det(total_cov)
 
 
 # =============================================================================
@@ -285,6 +325,8 @@ total_cov_det = np.linalg.det(total_cov)
 
 print("Upper limit: ", get_limit_ds20k(plot=True))
 
+
+#%%
 # =============================================================================
 # Plotting spectrum for different values of c
 # =============================================================================
@@ -309,6 +351,7 @@ plt.xlim(4,14)
 plt.legend(fontsize=18,frameon=False,loc=2)
 plt.tight_layout()
 
+#%%
 # =============================================================================
 # Plotting background + signal histograms
 # =============================================================================
@@ -335,7 +378,7 @@ plt.xlim(firstbin, lastbin)
 plt.legend(fontsize=18,frameon=False,loc=9)
 plt.tight_layout()
 
-
+#%%
 # =============================================================================
 # Plotting S/S+B
 # =============================================================================
