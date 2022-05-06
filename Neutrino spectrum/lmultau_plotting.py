@@ -11,7 +11,7 @@ NOTE: moved to using a juypter notebook
 """
 
 
-# In[40]:
+# In[40]: Imports and defininf funcs
 
 
 import numpy as np
@@ -22,6 +22,21 @@ import matplotlib
 import bisect
 
 from func_my_cevns import spectope
+
+
+def getindex(g, m):
+    '''
+    func to help find rows in the dataframe which have the values of g and m 
+    we are looking for
+    '''
+    # selecting the firt row that meets the condtions
+    # allowing 5% either side
+    mult = 1.05
+    mult2 = 0.95
+    if g < 1e-3: mult = 1.1; mult2 = 0.99
+
+    index = df_MuTau[(df_MuTau['g_x'] < mult*g) & (df_MuTau['g_x'] > mult2*g) & (df_MuTau['m_A']< 1.05*m) & (df_MuTau['m_A'] > 0.95*m)].index[0]
+    return index
 
 # In[4]: LOADING IN DATA
 
@@ -78,7 +93,6 @@ plt.loglog(sm_er*1e6, sm_spec) # sm only from 1e-2 whereas other spec are from 1
 fig=plt.figure(3,figsize=(10,8))
 
 # plotting the diff with gx and M
-f=plt.figure(figsize=(15,10))
 plt.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, norm=matplotlib.colors.LogNorm(), vmax = 2)
 plt.ylabel('$g_x$ [GeV]')
 plt.xlabel('$m_A$ [GeV]')
@@ -90,7 +104,7 @@ plt.show()
 
 #%% PLOTTING THE INDEX
 
-fig=plt.figure(0,figsize=(10,8))
+fig=plt.figure(4,figsize=(10,8))
 
 # plotting the diff with gx and M
 plt.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau.index)
@@ -105,40 +119,132 @@ plt.show()
 
 
 
-# In[29]: PLOTTING SM VS A VARIETY - USING INDEX
+#%% M1 PLOTTING FOR FIXED MASS
+
+fixed_mass = 4e-3 # GeV
+
+a = getindex(1e-4,fixed_mass)
+b = getindex(2e-4,fixed_mass)
+c = getindex(8e-4,fixed_mass)
+d = getindex(1e-3, fixed_mass)
+e = getindex(5e-3, fixed_mass)
+g = getindex(1e-2, fixed_mass)
 
 
-# Picking some points to plot - plot here and do for PE
-f=plt.figure(4,figsize=(10,8))
+# plotting
+
+f=plt.figure(5,figsize=(10,8))
 plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
 plt.ylabel(r'$\rm{d}R/\rm{d}E_R\,\,\,\left[\rm{keV}^{-1}\,\,\rm{ton}^{-1}\,\,\rm{yr}^{-1}\right]$', size=16)
 
-plt.loglog(df_MuTau.iloc[1998].ERs*1e6, df_MuTau.iloc[19998].spec, label = 'g_x = ' + str(df_MuTau.iloc[1998].g_x) + ', m_A = ' + str(df_MuTau.iloc[1998].m_A))
+plt.title(' m_A = ' + str(fixed_mass))
 
-plt.loglog(df_MuTau.iloc[100].ERs*1e6, df_MuTau.iloc[100].spec, label = 'g_x = ' + str(df_MuTau.iloc[100].g_x) + ', m_A = ' + str(df_MuTau.iloc[100].m_A))
+plt.loglog(df_MuTau.iloc[a].ERs*1e6, df_MuTau.iloc[a].spec, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) )
+plt.loglog(df_MuTau.iloc[b].ERs*1e6, df_MuTau.iloc[b].spec, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) )
+plt.loglog(df_MuTau.iloc[c].ERs*1e6, df_MuTau.iloc[c].spec, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) )
+plt.loglog(df_MuTau.iloc[d].ERs*1e6, df_MuTau.iloc[d].spec, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) )
+plt.loglog(df_MuTau.iloc[e].ERs*1e6, df_MuTau.iloc[e].spec, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) )
+plt.loglog(df_MuTau.iloc[g].ERs*1e6, df_MuTau.iloc[g].spec, label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) )
 
-plt.loglog(df_MuTau.iloc[19995].ERs*1e6, df_MuTau.iloc[19995].spec, label = 'g_x = ' + str(df_MuTau.iloc[19995].g_x) + ', m_A = ' + str(df_MuTau.iloc[19995].m_A))
 
-plt.loglog(sm_er*1e6, sm_spec, label = 'SM') # sm only from 1e-2 whereas other spec are from 1e-3 - won't make a difference for PE spec!
+plt.legend(fontsize=12,frameon=False,loc='lower left')
+
+#%% M2 PLOTTING BSM/SM vs ER
+
+def getratio(index):
+    '''
+    returns ratio of bsm/sm for a given row ion df
+    
+    index: index of row in df
+
+    '''
+    # points at which we want to sample
+    x_sample = sm_er # sm spec starts at a higher ER
+    ratio = np.interp(x_sample, df_MuTau.iloc[index].ERs, df_MuTau.iloc[index].spec) / sm_spec
+    
+    return ratio
+    
+f=plt.figure(50,figsize=(10,8))
+
+# different lengths sampled at different points
+
+# line at 1
+plt.axhline(y=1, color='r', linestyle='--')
+
+#plt.ylim(0, 10)
+
+plt.plot(sm_er*1e6, getratio(a) , label = 'g_x = ' + str(df_MuTau.iloc[a].g_x))
+plt.plot(sm_er*1e6, getratio(b) , label = 'g_x = ' + str(df_MuTau.iloc[b].g_x))
+plt.plot(sm_er*1e6, getratio(c) , label = 'g_x = ' + str(df_MuTau.iloc[c].g_x))
+plt.plot(sm_er*1e6, getratio(d) , label = 'g_x = ' + str(df_MuTau.iloc[d].g_x))
+plt.plot(sm_er*1e6, getratio(e) , label = 'g_x = ' + str(df_MuTau.iloc[e].g_x))
+plt.plot(sm_er*1e6, getratio(g) , label = 'g_x = ' + str(df_MuTau.iloc[g].g_x))
+
+plt.title(' m_A = ' + str(fixed_mass))
+plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
+plt.ylabel(r'BSM/SM', size=16)
+
+plt.xscale('log')
+
+plt.legend(fontsize=12,frameon=False,loc='upper right')
+
+#%% G1 PLOTTING FOR FIXED COUPLING
+
+fixed_g = 3e-4 # GeV
+
+a = getindex(fixed_g, 1e-3)
+b = getindex(fixed_g, 5e-3)
+c = getindex(fixed_g, 1e-2)
+d = getindex(fixed_g, 5e-2)
+e = getindex(fixed_g, 1e-1)
+g = getindex(fixed_g, 1)
+
+
+# plotting
+
+f=plt.figure(6,figsize=(10,8))
+plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
+plt.ylabel(r'$\rm{d}R/\rm{d}E_R\,\,\,\left[\rm{keV}^{-1}\,\,\rm{ton}^{-1}\,\,\rm{yr}^{-1}\right]$', size=16)
+
+plt.title(' g_x = ' + str(fixed_g))
+
+plt.loglog(df_MuTau.iloc[a].ERs*1e6, df_MuTau.iloc[a].spec, label = ' m_A = ' + str(df_MuTau.iloc[a].m_A))
+plt.loglog(df_MuTau.iloc[b].ERs*1e6, df_MuTau.iloc[b].spec, label = ' m_A = ' + str(df_MuTau.iloc[b].m_A))
+plt.loglog(df_MuTau.iloc[c].ERs*1e6, df_MuTau.iloc[c].spec, label = ' m_A = ' + str(df_MuTau.iloc[c].m_A))
+plt.loglog(df_MuTau.iloc[d].ERs*1e6, df_MuTau.iloc[d].spec, label = ' m_A = ' + str(df_MuTau.iloc[d].m_A))
+plt.loglog(df_MuTau.iloc[e].ERs*1e6, df_MuTau.iloc[e].spec, label = ' m_A = ' + str(df_MuTau.iloc[e].m_A))
+plt.loglog(df_MuTau.iloc[g].ERs*1e6, df_MuTau.iloc[g].spec, label = ' m_A = ' + str(df_MuTau.iloc[g].m_A))
+
+plt.legend(fontsize=12,frameon=False,loc='lower left')
+
+
+#%% G2 Plotting ratio for fixed coupling
+f=plt.figure(51,figsize=(10,8))
+# line at 1
+plt.axhline(y=1, color='r', linestyle='--')
+
+plt.ylim(0, 10)
+
+plt.plot(sm_er*1e6, getratio(a) , label = ' m_A = ' + str(df_MuTau.iloc[a].m_A))
+plt.plot(sm_er*1e6, getratio(b) , label = ' m_A = ' + str(df_MuTau.iloc[b].m_A))
+plt.plot(sm_er*1e6, getratio(c) , label = ' m_A = ' + str(df_MuTau.iloc[c].m_A))
+plt.plot(sm_er*1e6, getratio(d) , label = ' m_A = ' + str(df_MuTau.iloc[d].m_A))
+plt.plot(sm_er*1e6, getratio(e) , label = ' m_A = ' + str(df_MuTau.iloc[e].m_A))
+plt.plot(sm_er*1e6, getratio(g) , label = ' m_A = ' + str(df_MuTau.iloc[g].m_A))
+
+plt.title(' g_x = ' + str(fixed_g))
+plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
+plt.ylabel(r'BSM/SM', size=16)
+
+plt.xscale('log')
+
 plt.legend(fontsize=12,frameon=False,loc='upper right')
 
 
 
 
-# In[ ]: SELECTING VALUES
-def getindex(g, m):
-    '''
-    func to help find rows in the dataframe which have the values of g and m 
-    we are looking for
-    '''
-    # selecting the firt row that meets the condtions
-    # allowing 5% either side
-    mult = 1.05
-    mult2 = 0.95
-    if g < 1e-3: mult = 1.1; mult2 = 0.99
 
-    index = df_MuTau[(df_MuTau['g_x'] < mult*g) & (df_MuTau['g_x'] > mult2*g) & (df_MuTau['m_A']< 1.05*m) & (df_MuTau['m_A'] > 0.95*m)].index[0]
-    return index
+# In[ ]: SELECTING VALUES
      
 # selecting values - starred points
 m = 1e-2
@@ -149,61 +255,114 @@ m = 1e-1
 d = getindex(2e-4, m)
 m = 1
 e = getindex(2e-3, m)
-f = getindex(4e-4, m)
+g = getindex(4e-4, m)
 
-print(a,b,c,d,e,f)
+print(a,b,c,d,e,g)
 
 #%%
 # plotting
 
-f=plt.figure(5,figsize=(10,8))
+f=plt.figure(7,figsize=(10,8))
 plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
 plt.ylabel(r'$\rm{d}R/\rm{d}E_R\,\,\,\left[\rm{keV}^{-1}\,\,\rm{ton}^{-1}\,\,\rm{yr}^{-1}\right]$', size=16)
 
-f = 1800
+plt.title("Benchmark Points")
 
 plt.loglog(df_MuTau.iloc[a].ERs*1e6, df_MuTau.iloc[a].spec, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A))
 plt.loglog(df_MuTau.iloc[b].ERs*1e6, df_MuTau.iloc[b].spec, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A))
 plt.loglog(df_MuTau.iloc[c].ERs*1e6, df_MuTau.iloc[c].spec, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) + ', m_A = ' + str(df_MuTau.iloc[c].m_A))
 plt.loglog(df_MuTau.iloc[d].ERs*1e6, df_MuTau.iloc[d].spec, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) + ', m_A = ' + str(df_MuTau.iloc[d].m_A))
 plt.loglog(df_MuTau.iloc[e].ERs*1e6, df_MuTau.iloc[e].spec, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) + ', m_A = ' + str(df_MuTau.iloc[e].m_A))
-plt.loglog(df_MuTau.iloc[f].ERs*1e6, df_MuTau.iloc[f].spec, label = 'g_x = ' + str(df_MuTau.iloc[f].g_x) + ', m_A = ' + str(df_MuTau.iloc[f].m_A))
+plt.loglog(df_MuTau.iloc[g].ERs*1e6, df_MuTau.iloc[g].spec, label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) + ', m_A = ' + str(df_MuTau.iloc[g].m_A))
 
 
-plt.legend(fontsize=12,frameon=False,loc='upper right')
+plt.legend(fontsize=12,frameon=False,loc='lower left')
 
 
-# In[ ]: CONVERTING TO PE
+# In[ ]: CONVERTING TO PE a
 
-
-# USING MY CONVERSION TP PE
 acev, abins = spectope(df_MuTau.iloc[a].ERs, df_MuTau.iloc[a].spec)
+
+
+
+
+# In[ ]: CONVERTING TO PE b
+
 bcev, bbins = spectope(df_MuTau.iloc[b].ERs, df_MuTau.iloc[b].spec)
+
+
+
+# In[ ]: CONVERTING TO PE c
+
 ccev, cbins = spectope(df_MuTau.iloc[c].ERs, df_MuTau.iloc[c].spec)
+
+
+# In[ ]: CONVERTING TO PE d
+
 dcev, dbins = spectope(df_MuTau.iloc[d].ERs, df_MuTau.iloc[d].spec)
+
+
+# In[ ]: CONVERTING TO PE e
+
 ecev, ebins = spectope(df_MuTau.iloc[e].ERs, df_MuTau.iloc[e].spec)
-fcev, fbins = spectope(df_MuTau.iloc[1800].ERs, df_MuTau.iloc[1800].spec) # weird problem with f
+
+
+# In[ ]: CONVERTING TO PE g
+
+gcev, gbins = spectope(df_MuTau.iloc[g].ERs, df_MuTau.iloc[g].spec)
 
 
 #%%
 
 # plotting
-f=plt.figure(6,figsize=(10,8))
+
+f, ax = plt.subplots(figsize=(15,10))
+
+ax.set_yscale('log')
+ax.set_xlabel('Number of electrons',fontsize=26)
+ax.set_ylabel('Events per tyr',fontsize=26) 
+
+ax.plot(abins, acev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A))
+ax.plot(bbins, bcev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A))
+ax.plot(cbins, ccev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) + ', m_A = ' + str(df_MuTau.iloc[c].m_A))
+ax.plot(dbins, dcev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) + ', m_A = ' + str(df_MuTau.iloc[d].m_A))
+ax.plot(ebins, ecev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) + ', m_A = ' + str(df_MuTau.iloc[e].m_A))
+ax.plot(gbins, gcev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) + ', m_A = ' + str(df_MuTau.iloc[g].m_A))
+
+ax.set_xlim(0,65)
+
+ax.set_title('Benchmark Points')
+
+ax.legend(fontsize=18,frameon=False,loc='upper right')
 
 
-# =============================================================================
-# NOT WORKING!!
-# =============================================================================
-plt.loglog(abins, acev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A))
-plt.loglog(bbins, bcev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A))
-plt.loglog(cbins, ccev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) + ', m_A = ' + str(df_MuTau.iloc[c].m_A))
-plt.loglog(dbins, dcev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) + ', m_A = ' + str(df_MuTau.iloc[d].m_A))
-plt.loglog(ebins, ecev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) + ', m_A = ' + str(df_MuTau.iloc[e].m_A))
-plt.loglog(fbins, fcev, '-+',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[1800].g_x) + ', m_A = ' + str(df_MuTau.iloc[1800].m_A)) # weird problem with f
+
+#%% Comparing to SM spec in PE
+
+mycenns = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[:,1]
+mybins = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[:,0]
 
 
-plt.xlabel('Number of electrons',fontsize=26)
-plt.ylabel('Events per tyr',fontsize=26) 
-plt.yscale('log')
-plt.legend(fontsize=18,frameon=False,loc='upper right')
+#%% Plotting ratio of pe with sm
+
+
+f, ax = plt.subplots(figsize=(15,10))
+
+ax.set_yscale('log')
+ax.set_xlabel('Number of electrons',fontsize=26)
+ax.set_ylabel('BSM/SM',fontsize=26) 
+
+ax.plot(abins, acev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A))
+ax.plot(bbins, bcev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A))
+ax.plot(cbins, ccev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) + ', m_A = ' + str(df_MuTau.iloc[c].m_A))
+ax.plot(dbins, dcev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) + ', m_A = ' + str(df_MuTau.iloc[d].m_A))
+ax.plot(ebins, ecev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) + ', m_A = ' + str(df_MuTau.iloc[e].m_A))
+ax.plot(gbins, gcev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) + ', m_A = ' + str(df_MuTau.iloc[g].m_A))
+
+ax.set_xlim(0,50)
+
+ax.set_title('Benchmark Points Ratio')
+
+ax.legend(fontsize=18,frameon=False,loc='upper right')
+
 
