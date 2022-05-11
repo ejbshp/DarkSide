@@ -215,7 +215,7 @@ plt.plot(sm_er*1e6, getratio(g) , label = 'g_x = ' + str(df_MuTau.iloc[g].g_x), 
 
 plt.title('Fixed mass: m_A = ' + str(fixed_mass) + ' [GeV]')
 plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
-plt.ylabel(r'BSM/SM', size=16)
+plt.ylabel(r'$\frac{(BSM + SM )}{SM}$', size=20)
 
 plt.xscale('log')
 plt.yscale('log')
@@ -292,7 +292,7 @@ plt.plot(sm_er*1e6, getratio(g) , label = ' m_A = ' + str(df_MuTau.iloc[g].m_A),
 
 plt.title('Fixed coupling: g_x = ' + str(fixed_g) + ' [GeV]')
 plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
-plt.ylabel(r'BSM/SM', size=16)
+plt.ylabel(r'$\frac{(BSM + SM )}{SM}$', size=20)
 
 plt.xscale('log')
 plt.yscale('log')
@@ -379,7 +379,7 @@ plt.plot(sm_er*1e6, getratio(g) , label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) +
 
 plt.title('Ratio: Benchmark points', size=20)
 plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
-plt.ylabel(r'BSM/SM', size=16)
+plt.ylabel(r'$\frac{(BSM + SM )}{SM}$', size=20)
 
 plt.xscale('log')
 plt.yscale('log')
@@ -461,7 +461,7 @@ f, ax = plt.subplots(figsize=(15,10))
 
 ax.set_yscale('log')
 ax.set_xlabel('Number of electrons',fontsize=26)
-ax.set_ylabel('BSM/SM',fontsize=26) 
+ax.set_ylabel(r'$\frac{(BSM + SM )}{SM}$', size=26)
 
 ax.plot(abins, acev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A))
 ax.plot(bbins, bcev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A))
