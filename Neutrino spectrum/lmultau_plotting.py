@@ -88,11 +88,12 @@ plt.loglog(sm_er*1e6,sm_spec)
 # Adding diff column to data frame
 # using traps for the bsm specs then divding by the value for the sm - gives an indication of the difference between sma nd bsm
 # find index above threshold for both and compare above 0.1 kev as this is what will make the difference in the PE plot
-sm_index = bisect.bisect_left(sm_spec, 0.1e-6)
+sm_index = bisect.bisect_left(sm_er, 0.1e-6)
+
 index = bisect.bisect_left(df_MuTau.iloc[1].ERs, 0.1e-6)
 df_MuTau['diff'] = df_MuTau.apply(lambda x: np.trapz(x.spec[index:], x.ERs[index:])/ np.trapz(sm_spec[sm_index:], sm_er[sm_index:]), axis=1)
 
-
+diffs = df_MuTau['diff']
 
 # In[54]: PLOTTING SM VS SOMETHING ELSE
 fig=plt.figure(2,figsize=(10,8))
@@ -107,13 +108,15 @@ plt.loglog(sm_er*1e6, sm_spec) # sm only from 1e-2 whereas other spec are from 1
 fig=plt.figure(3,figsize=(10,8))
 
 # plotting the diff with gx and M
-plt.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, norm=matplotlib.colors.LogNorm(), vmax = 2, cmap = plt.get_cmap('Spectral'))
-plt.ylabel('$g_x$ [GeV]')
-plt.xlabel('$m_A$ [GeV]')
+plt.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values,  vmax = 2, cmap = plt.get_cmap('Spectral'))
+plt.ylabel('$g_x$ [GeV]', size=16)
+plt.xlabel('$M_A$ [GeV]', size=16)
 plt.xscale('log')
 plt.yscale('log')
-cbar = plt.colorbar()
-cbar.set_label('BSM/SM', rotation=270)
+
+fmt = matplotlib.ticker.FormatStrFormatter('%1.1f')
+cbar = plt.colorbar(format = fmt)
+cbar.set_label(r'$\frac{(BSM + SM )}{SM}$', size=20)
 plt.show()
 
 #%% PLOTTING THE INDEX
@@ -127,7 +130,7 @@ plt.xlabel('$m_A$ [GeV]')
 plt.xscale('log')
 plt.yscale('log')
 cbar = plt.colorbar()
-cbar.set_label('index', rotation=270)
+cbar.set_label('Index')
 plt.show()
 
 
@@ -165,14 +168,19 @@ ax1.legend(fontsize=12,frameon=False,loc='lower left')
 
 # Color graph of all points
 cmap = plt.get_cmap('Spectral')
-ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, norm=matplotlib.colors.LogNorm(), vmax = 2, cmap=cmap)
+ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, vmax = 2, cmap=cmap)
 ax2.set_ylabel('$g_x$ [GeV]', size=16)
 ax2.set_xlabel('$m_A$ [GeV]', size=16)
 ax2.set_xscale('log')
 ax2.set_yscale('log')
-sm =  ScalarMappable(norm=matplotlib.colors.LogNorm(vmin = 1e-2, vmax = 2), cmap=cmap)
-cbar = fig.colorbar(sm, ax=ax2)
-cbar.set_label('BSM/SM', rotation=270)
+
+fmt = matplotlib.ticker.FormatStrFormatter('%1.1f')
+sm =  ScalarMappable(norm=matplotlib.colors.Normalize(vmin = 1, vmax = 2), cmap=cmap)
+cbar = fig.colorbar(sm, ax=ax2, format=fmt)
+cbar.set_label(r'$\frac{(BSM + SM )}{SM}$', size=20)
+
+
+
 
 # plotting points on colour graph
 ax2.plot(fixed_mass, df_MuTau.iloc[a].g_x, marker='o', markersize=10, color ='C0' )
@@ -246,14 +254,16 @@ ax1.legend(fontsize=12,frameon=False,loc='lower left')
 
 # Color graph of all points
 cmap = plt.get_cmap('Spectral')
-ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, norm=matplotlib.colors.LogNorm(), vmax = 2, cmap=cmap)
+ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, vmax = 2, cmap=cmap)
 ax2.set_ylabel('$g_x$ [GeV]', size=16)
 ax2.set_xlabel('$m_A$ [GeV]', size=16)
 ax2.set_xscale('log')
 ax2.set_yscale('log')
-sm =  ScalarMappable(norm=matplotlib.colors.LogNorm(vmin = 1e-2, vmax = 2), cmap=cmap)
-cbar = fig.colorbar(sm, ax=ax2)
-cbar.set_label('BSM/SM', rotation=270)
+
+fmt = matplotlib.ticker.FormatStrFormatter('%1.1f')
+sm =  ScalarMappable(norm=matplotlib.colors.Normalize(vmin = 1, vmax = 2), cmap=cmap)
+cbar = fig.colorbar(sm, ax=ax2, format=fmt)
+cbar.set_label(r'$\frac{(BSM + SM )}{SM}$', size=20)
 
 # plotting points on colour graph
 ax2.plot(df_MuTau.iloc[a].m_A, df_MuTau.iloc[a].g_x, marker='o', markersize=10, color ='C0' )
@@ -330,14 +340,16 @@ ax1.legend(fontsize=12,frameon=False,loc='lower left')
 
 # Color graph of all points
 cmap = plt.get_cmap('Spectral')
-ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, norm=matplotlib.colors.LogNorm(), vmax = 2, cmap=cmap)
+ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, vmax = 2, cmap=cmap)
 ax2.set_ylabel('$g_x$ [GeV]', size=16)
 ax2.set_xlabel('$m_A$ [GeV]', size=16)
 ax2.set_xscale('log')
 ax2.set_yscale('log')
-sm =  ScalarMappable(norm=matplotlib.colors.LogNorm(vmin = 1e-2, vmax = 2), cmap=cmap)
-cbar = fig.colorbar(sm, ax=ax2)
-cbar.set_label('BSM/SM', rotation=270)
+
+fmt = matplotlib.ticker.FormatStrFormatter('%1.1f')
+sm =  ScalarMappable(norm=matplotlib.colors.Normalize(vmin = 1, vmax = 2), cmap=cmap)
+cbar = fig.colorbar(sm, ax=ax2, format=fmt)
+cbar.set_label(r'$\frac{(BSM + SM )}{SM}$', size=20)
 
 # plotting points on colour graph
 ax2.plot(df_MuTau.iloc[a].m_A, df_MuTau.iloc[a].g_x, marker='o', markersize=10, color ='C0' )
