@@ -7,6 +7,7 @@ Comparing specs
 
 import numpy as np
 from matplotlib import pyplot as plt
+from Func_DS20K_vlim import get_limit, single_get_limit
 
 # =============================================================================
 # Loading in data
@@ -39,3 +40,10 @@ plt.yscale('log')
 plt.legend(fontsize=18,frameon=False,loc='upper right')
 
 
+# =============================================================================
+# Limit and single limit - uses old spec
+# =============================================================================
+
+print('Limit ', get_limit(4, 50, 0.15))
+
+print('Single limit ', single_get_limit(0, 10, 0.15))

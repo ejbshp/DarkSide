@@ -57,7 +57,7 @@ pe_list = []
 
 # define variables
 # multiply to sample more - smooth things out
-mult = 5000
+mult = 10000
 lower_threshold = 0.1 #kev
 # who is the input spec from
 data_source = 'A' # andrew
@@ -109,8 +109,8 @@ for j in range(len(er)-1): # can't calculate diff for last point
             pe_no = s2_pe_bin_centres[s2_bin_no] * energy / ebin_centre[index]
             # add to list
             pe_list.append(pe_no)
-
             
+      
 # =============================================================================
 # Binning the pe_list data - and dividing by mult
 # =============================================================================
@@ -132,6 +132,8 @@ my_cevns = np.array(my_cevns)
 # getting new bin centres
 bins = bin_edges[1::2]
 
+#%%
+
 # =============================================================================
 # Writing data to file
 # =============================================================================
@@ -143,6 +145,15 @@ for n in range(len(bins)-1):
     
 file.close()
 
+#%%
+
+# =============================================================================
+# Estmating stat errors
+# =============================================================================
+
+# error on each bin will be 1/sqrt(N) with N e being the number of times sampled into that bin
+# N is our number of events in a bin multiplied by mult
+events_err = 1 / np.sqrt(my_cevns*mult)
 
 
 #%%
@@ -153,26 +164,32 @@ file.close()
 
 
 firstbin = 0
-lastbin = 60
+lastbin = 99
 
 cevns = np.loadtxt('output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[firstbin:lastbin,1]
 bins = np.loadtxt('output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[firstbin:lastbin,0]
 
 
-# loading data - for comparison
-ds20k_cevns = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
-ds20k_bins = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0]
+# # loading data - for comparison
+# ds20k_cevns = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
+# ds20k_bins = np.loadtxt('data/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,0]
 
-
-# convert old cevns into events/tyr - dividing by ds20k exposure in tyr
-ds20k_cevns = ds20k_cevns / 100
+# # convert old cevns into events/tyr - dividing by ds20k exposure in tyr
+# ds20k_cevns = ds20k_cevns / 100
 
 
 # plotting
 f=plt.figure(figsize=(10,8))
 
-plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
-plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
+#plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
+# plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
+
+plt.errorbar(bins,cevns,yerr=events_err, fmt='o', capsize=3, color='k',linewidth=2, label = r'$\frac{1}{\sqrt{N}}$')
+plt.bar(bins,cevns,width=1, log=True, alpha=0.7, label = 'SM CEvNS')
+
+plt.title('Input spec scaling: mult = ' + str(mult), size = 18)
+
+plt.xlim(0, 60)
 
 plt.xlabel('Number of electrons',fontsize=26)
 plt.ylabel('Events per tyr',fontsize=26) 
