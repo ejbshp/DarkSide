@@ -6,7 +6,7 @@ my_cevns.py
 March 2 2022 - Copy of neutrinospec_conversion_ERtoPE - cutting out a binning method.
 March 4 2022 - Editing to change the bins, bins in the response function are half electron.
 April 7 2022 - Changing upper limit to use last value in the dist - removing upper threshold
-May 12 2022 - Investigating 50PE+
+May 12 2022 - Investigating 50PE+ and adding errors to file
 
 author: EB
 
@@ -142,19 +142,6 @@ bins = bin_edges[1::2]
 #%%
 
 # =============================================================================
-# Writing data to file
-# =============================================================================
-filename = 'output_my_cevns/PE_argon_SM_' + data_source + '.txt'
-file = open(filename, 'w')
-
-for n in range(len(bins)-1):
-    file.write(str(bins[n]) + ' ' + str(my_cevns[n]) + '\n')
-    
-file.close()
-
-#%%
-
-# =============================================================================
 # Estmating stat errors
 # =============================================================================
 
@@ -166,15 +153,23 @@ events_err = my_cevns / np.sqrt(my_cevns*mult)
 #%%
 
 # =============================================================================
+# Writing data to file
+# =============================================================================
+filename = 'output_my_cevns/PE_argon_SM_' + data_source + '_with_err.txt'
+file = open(filename, 'w')
+
+for n in range(len(bins)-1):
+    file.write(str(bins[n]) + ' ' + str(my_cevns[n]) + ' ' + str(events_err[n]) + '\n')
+    
+file.close()
+
+
+
+#%%
+
+# =============================================================================
 # Plotting
 # =============================================================================
-
-
-firstbin = 0
-lastbin = 99
-
-cevns = np.loadtxt('output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[firstbin:lastbin,1]
-bins = np.loadtxt('output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[firstbin:lastbin,0]
 
 
 # # loading data - for comparison
@@ -191,8 +186,8 @@ f=plt.figure(figsize=(10,8))
 #plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
 # plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
 
-plt.errorbar(bins,cevns,yerr=events_err, fmt='o', capsize=3, color='k',linewidth=2, label = r'$\frac{N_{Events}}{\sqrt{N_{Samples}}}$')
-plt.bar(bins,cevns,width=1, log=True, alpha=0.7, label = 'SM CEvNS')
+plt.errorbar(bins,my_cevns,yerr=events_err, fmt='o', capsize=3, color='k',linewidth=2, label = r'$\frac{N_{Events}}{\sqrt{N_{Samples}}}$')
+plt.bar(bins,my_cevns,width=1, log=True, alpha=0.7, label = 'SM CEvNS')
 
 plt.title('Input spec scaling: mult = ' + str(mult), size = 18)
 
