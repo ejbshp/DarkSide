@@ -126,7 +126,7 @@ fig=plt.figure(4,figsize=(10,8))
 # plotting the diff with gx and M
 plt.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau.index)
 plt.ylabel('$g_x$ [GeV]')
-plt.xlabel('$m_A$ [GeV]')
+plt.xlabel('$M_A$ [GeV]')
 plt.xscale('log')
 plt.yscale('log')
 cbar = plt.colorbar()
@@ -170,7 +170,7 @@ ax1.legend(fontsize=12,frameon=False,loc='lower left')
 cmap = plt.get_cmap('Spectral')
 ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, vmax = 2, cmap=cmap)
 ax2.set_ylabel('$g_x$ [GeV]', size=16)
-ax2.set_xlabel('$m_A$ [GeV]', size=16)
+ax2.set_xlabel('$M_A$ [GeV]', size=16)
 ax2.set_xscale('log')
 ax2.set_yscale('log')
 
@@ -256,7 +256,7 @@ ax1.legend(fontsize=12,frameon=False,loc='lower left')
 cmap = plt.get_cmap('Spectral')
 ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, vmax = 2, cmap=cmap)
 ax2.set_ylabel('$g_x$ [GeV]', size=16)
-ax2.set_xlabel('$m_A$ [GeV]', size=16)
+ax2.set_xlabel('$M_A$ [GeV]', size=16)
 ax2.set_xscale('log')
 ax2.set_yscale('log')
 
@@ -342,7 +342,7 @@ ax1.legend(fontsize=12,frameon=False,loc='lower left')
 cmap = plt.get_cmap('Spectral')
 ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, vmax = 2, cmap=cmap)
 ax2.set_ylabel('$g_x$ [GeV]', size=16)
-ax2.set_xlabel('$m_A$ [GeV]', size=16)
+ax2.set_xlabel('$M_A$ [GeV]', size=16)
 ax2.set_xscale('log')
 ax2.set_yscale('log')
 
@@ -475,5 +475,128 @@ ax.set_xlim(0,50)
 ax.set_title('Ratio: Benchmark Points', size=20)
 
 ax.legend(fontsize=18,frameon=False,loc='upper right')
+
+
+#%% P1 PLOTTING ER SPEC AND COLOUR PLOT SIDE BY SIDE - CHOOSE 6 POINTS
+
+# select points
+
+a = getindex(1e-4,1e-3)
+b = getindex(2e-4,4e-3)
+c = getindex(8e-4,2e-2)
+d = getindex(4e-3, 1e-1)
+e = getindex(1e-2, 0.4)
+g = getindex(4e-4, 1e-2)
+
+
+# plotting
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(25,10))
+
+# Er spec for the 6 points
+ax1.set_xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
+ax1.set_ylabel(r'$\rm{d}R/\rm{d}E_R\,\,\,\left[\rm{keV}^{-1}\,\,\rm{ton}^{-1}\,\,\rm{yr}^{-1}\right]$', size=16)
+
+ax1.loglog(sm_er*1e6, sm_spec, '--' ,label=r'SM CE$\nu$NS', color='C6')
+ax1.loglog(df_MuTau.iloc[a].ERs*1e6, df_MuTau.iloc[a].spec, label = f'$g_x$ =  {df_MuTau.iloc[a].g_x:.4f}, $M_A$ = {df_MuTau.iloc[a].m_A:.4f}', color ='C0' )
+ax1.loglog(df_MuTau.iloc[b].ERs*1e6, df_MuTau.iloc[b].spec, label = f'$g_x$ =  {df_MuTau.iloc[b].g_x:.4f}, $M_A$ = {df_MuTau.iloc[b].m_A:.4f}', color ='C1' )
+ax1.loglog(df_MuTau.iloc[c].ERs*1e6, df_MuTau.iloc[c].spec, label = f'$g_x$ =  {df_MuTau.iloc[c].g_x:.4f}, $M_A$ = {df_MuTau.iloc[c].m_A:.4f}', color ='C2' )
+ax1.loglog(df_MuTau.iloc[d].ERs*1e6, df_MuTau.iloc[d].spec, label = f'$g_x$ =  {df_MuTau.iloc[d].g_x:.4f}, $M_A$ = {df_MuTau.iloc[d].m_A:.4f}', color ='C3' )
+ax1.loglog(df_MuTau.iloc[e].ERs*1e6, df_MuTau.iloc[e].spec, label = f'$g_x$ =  {df_MuTau.iloc[e].g_x:.4f}, $M_A$ = {df_MuTau.iloc[e].m_A:.4f}', color ='C4' )
+ax1.loglog(df_MuTau.iloc[g].ERs*1e6, df_MuTau.iloc[g].spec, label = f'$g_x$ =  {df_MuTau.iloc[g].g_x:.4f}, $M_A$ = {df_MuTau.iloc[g].m_A:.4f}', color ='C5' )
+
+ax1.set_xlim(1e-2,1e2)
+ax1.legend(fontsize=12,frameon=False,loc='lower left')
+
+# Color graph of all points
+cmap = plt.get_cmap('Spectral')
+ax2.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['diff'].values, vmax = 2, cmap=cmap)
+ax2.set_ylabel('$g_x$ [GeV]', size=16)
+ax2.set_xlabel('$M_A$ [GeV]', size=16)
+ax2.set_xscale('log')
+ax2.set_yscale('log')
+
+fmt = matplotlib.ticker.FormatStrFormatter('%1.1f')
+sm =  ScalarMappable(norm=matplotlib.colors.Normalize(vmin = 1, vmax = 2), cmap=cmap)
+cbar = fig.colorbar(sm, ax=ax2, format=fmt)
+cbar.set_label(r'$\frac{(BSM + SM )}{SM}$', size=20)
+
+
+
+
+# plotting points on colour graph
+ax2.plot(df_MuTau.iloc[a].m_A, df_MuTau.iloc[a].g_x, marker='o', markersize=10, color ='C0' )
+ax2.plot(df_MuTau.iloc[b].m_A, df_MuTau.iloc[b].g_x, marker='o', markersize=10, color ='C1' )
+ax2.plot(df_MuTau.iloc[c].m_A, df_MuTau.iloc[c].g_x, marker='o', markersize=10, color ='C2' )
+ax2.plot(df_MuTau.iloc[d].m_A, df_MuTau.iloc[d].g_x, marker='o', markersize=10, color ='C3' )
+ax2.plot(df_MuTau.iloc[e].m_A, df_MuTau.iloc[e].g_x, marker='o', markersize=10, color ='C4' )
+ax2.plot(df_MuTau.iloc[g].m_A, df_MuTau.iloc[g].g_x, marker='o', markersize=10, color ='C5' )
+
+plt.show()
+
+#%% P2 RATIO PLOT OF THE 6 POINTS
+    
+f=plt.figure(50,figsize=(10,8))
+
+# different lengths sampled at different points
+
+# line at 1
+plt.axhline(y=1, color='r', linestyle='--')
+
+#plt.ylim(0, 10)
+
+plt.plot(sm_er*1e6, getratio(a) , label = 'g_x = ' + str(df_MuTau.iloc[a].g_x), color ='C0')
+plt.plot(sm_er*1e6, getratio(b) , label = 'g_x = ' + str(df_MuTau.iloc[b].g_x), color ='C1')
+plt.plot(sm_er*1e6, getratio(c) , label = 'g_x = ' + str(df_MuTau.iloc[c].g_x), color ='C2')
+plt.plot(sm_er*1e6, getratio(d) , label = 'g_x = ' + str(df_MuTau.iloc[d].g_x), color ='C3')
+plt.plot(sm_er*1e6, getratio(e) , label = 'g_x = ' + str(df_MuTau.iloc[e].g_x), color ='C4')
+plt.plot(sm_er*1e6, getratio(g) , label = 'g_x = ' + str(df_MuTau.iloc[g].g_x), color ='C5')
+
+plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
+plt.ylabel(r'$\frac{(BSM + SM )}{SM}$', size=20)
+
+plt.xscale('log')
+plt.yscale('log')
+
+plt.legend(fontsize=12,frameon=False,loc='upper right')
+
+
+#%% INVESTIGATING THE TAIL
+
+# when using np.trapz and comparing to the SM spec integration no ratio is below 1, meaning that there doesn't seem to be any destructive effects
+# however this doesn't take into account the possibility of major shape difference - meaning that in one area the spec dips below the SM
+# but in another the BSM additions are so great that it cancels this dip out in the integral over the entire spec.
+# Many of the plots below show major increases in rate at the lower energy regions which could be masking changes in the tail.
+# Below I wll investigate changes in only the tail region.
+
+
+
+# Adding taildiff column to data frame
+# using traps for the bsm specs then divding by the value for the sm - gives an indication of the difference between sma nd bsm
+# find index above threshold for both and compare above a given energy
+
+#TODO find energies relevant for 50PE+ photoelectron production
+
+sm_index = bisect.bisect_left(sm_er, 6.25e-6)
+index = bisect.bisect_left(df_MuTau.iloc[1].ERs, 6.25e-6)
+df_MuTau['taildiff'] = df_MuTau.apply(lambda x: np.trapz(x.spec[index:], x.ERs[index:])/ np.trapz(sm_spec[sm_index:], sm_er[sm_index:]), axis=1)
+
+taildiffs = df_MuTau['taildiff']
+
+fig=plt.figure(13,figsize=(10,8))
+
+# plotting the diff with gx and M
+plt.scatter(df_MuTau['m_A'].values, df_MuTau['g_x'].values, c=df_MuTau['taildiff'].values, vmax=2, cmap = plt.get_cmap('Spectral'))
+plt.ylabel('$g_x$ [GeV]', size=16)
+plt.xlabel('$M_A$ [GeV]', size=16)
+plt.title('Tail only: $E_R$ > 6.25keV')
+plt.xscale('log')
+plt.yscale('log')
+
+fmt = matplotlib.ticker.FormatStrFormatter('%1.1f')
+cbar = plt.colorbar(format = fmt)
+cbar.set_label(r'$\frac{(BSM + SM )}{SM}$', size=20)
+plt.show()
+
+
 
 
