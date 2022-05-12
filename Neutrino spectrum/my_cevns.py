@@ -6,6 +6,7 @@ my_cevns.py
 March 2 2022 - Copy of neutrinospec_conversion_ERtoPE - cutting out a binning method.
 March 4 2022 - Editing to change the bins, bins in the response function are half electron.
 April 7 2022 - Changing upper limit to use last value in the dist - removing upper threshold
+May 12 2022 - Investigating 50PE+
 
 author: EB
 
@@ -54,6 +55,9 @@ s2_start_pe = df.start_ne.to_list()
 
 # empty list to add pe response to - list of number of PE produced in an event
 pe_list = []
+
+# empty list for 50PE+ recoil energies
+er_50_list = []
 
 # define variables
 # multiply to sample more - smooth things out
@@ -109,8 +113,11 @@ for j in range(len(er)-1): # can't calculate diff for last point
             pe_no = s2_pe_bin_centres[s2_bin_no] * energy / ebin_centre[index]
             # add to list
             pe_list.append(pe_no)
+            # Interested in events with 50PE+ - what are the recoil energies
+            if pe_no > 50: er_50_list.append(energy)
             
-      
+#%% binning
+
 # =============================================================================
 # Binning the pe_list data - and dividing by mult
 # =============================================================================
@@ -153,7 +160,7 @@ file.close()
 
 # error on each bin will be 1/sqrt(N) with N e being the number of times sampled into that bin
 # N is our number of events in a bin multiplied by mult
-events_err = 1 / np.sqrt(my_cevns*mult)
+events_err = my_cevns / np.sqrt(my_cevns*mult)
 
 
 #%%
@@ -184,16 +191,27 @@ f=plt.figure(figsize=(10,8))
 #plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
 # plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
 
-plt.errorbar(bins,cevns,yerr=events_err, fmt='o', capsize=3, color='k',linewidth=2, label = r'$\frac{1}{\sqrt{N}}$')
+plt.errorbar(bins,cevns,yerr=events_err, fmt='o', capsize=3, color='k',linewidth=2, label = r'$\frac{N_{Events}}{\sqrt{N_{Samples}}}$')
 plt.bar(bins,cevns,width=1, log=True, alpha=0.7, label = 'SM CEvNS')
 
 plt.title('Input spec scaling: mult = ' + str(mult), size = 18)
 
-plt.xlim(0, 60)
+plt.xlim(0, 70)
 
 plt.xlabel('Number of electrons',fontsize=26)
 plt.ylabel('Events per tyr',fontsize=26) 
 plt.yscale('log')
 plt.legend(fontsize=18,frameon=False,loc='upper right')
+
+
+#%% plot hist of recoil enrgies producing events of 50PE+
+
+
+fig=plt.figure(figsize=(10,8))
+
+plt.hist(er_50_list, width=0.35,color='deepskyblue',alpha=0.7)
+plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
+plt.ylabel('Events with a response > 50PE', size=16)
+
 
 
