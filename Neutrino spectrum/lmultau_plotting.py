@@ -157,12 +157,12 @@ ax1.set_xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
 ax1.set_ylabel(r'$\rm{d}R/\rm{d}E_R\,\,\,\left[\rm{keV}^{-1}\,\,\rm{ton}^{-1}\,\,\rm{yr}^{-1}\right]$', size=16)
 
 
-ax1.loglog(df_MuTau.iloc[a].ERs*1e6, df_MuTau.iloc[a].spec, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x), color ='C0' )
-ax1.loglog(df_MuTau.iloc[b].ERs*1e6, df_MuTau.iloc[b].spec, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x), color ='C1' )
-ax1.loglog(df_MuTau.iloc[c].ERs*1e6, df_MuTau.iloc[c].spec, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x), color ='C2' )
-ax1.loglog(df_MuTau.iloc[d].ERs*1e6, df_MuTau.iloc[d].spec, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x), color ='C3' )
-ax1.loglog(df_MuTau.iloc[e].ERs*1e6, df_MuTau.iloc[e].spec, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x), color ='C4' )
-ax1.loglog(df_MuTau.iloc[g].ERs*1e6, df_MuTau.iloc[g].spec, label = 'g_x = ' + str(df_MuTau.iloc[g].g_x), color ='C5' )
+ax1.loglog(df_MuTau.iloc[a].ERs*1e6, df_MuTau.iloc[a].spec, label = '$g_x=$' + str(df_MuTau.iloc[a].g_x), color ='C0' )
+ax1.loglog(df_MuTau.iloc[b].ERs*1e6, df_MuTau.iloc[b].spec, label = '$g_x=$' + str(df_MuTau.iloc[b].g_x), color ='C1' )
+ax1.loglog(df_MuTau.iloc[c].ERs*1e6, df_MuTau.iloc[c].spec, label = '$g_x=$' + str(df_MuTau.iloc[c].g_x), color ='C2' )
+ax1.loglog(df_MuTau.iloc[d].ERs*1e6, df_MuTau.iloc[d].spec, label = '$g_x=$' + str(df_MuTau.iloc[d].g_x), color ='C3' )
+ax1.loglog(df_MuTau.iloc[e].ERs*1e6, df_MuTau.iloc[e].spec, label = '$g_x=$' + str(df_MuTau.iloc[e].g_x), color ='C4' )
+ax1.loglog(df_MuTau.iloc[g].ERs*1e6, df_MuTau.iloc[g].spec, label = '$g_x=$' + str(df_MuTau.iloc[g].g_x), color ='C5' )
 
 ax1.legend(fontsize=12,frameon=False,loc='lower left')
 
@@ -206,12 +206,12 @@ plt.axhline(y=1, color='r', linestyle='--')
 
 #plt.ylim(0, 10)
 
-plt.plot(sm_er*1e6, getratio(a) , label = 'g_x = ' + str(df_MuTau.iloc[a].g_x), color ='C0')
-plt.plot(sm_er*1e6, getratio(b) , label = 'g_x = ' + str(df_MuTau.iloc[b].g_x), color ='C1')
-plt.plot(sm_er*1e6, getratio(c) , label = 'g_x = ' + str(df_MuTau.iloc[c].g_x), color ='C2')
-plt.plot(sm_er*1e6, getratio(d) , label = 'g_x = ' + str(df_MuTau.iloc[d].g_x), color ='C3')
-plt.plot(sm_er*1e6, getratio(e) , label = 'g_x = ' + str(df_MuTau.iloc[e].g_x), color ='C4')
-plt.plot(sm_er*1e6, getratio(g) , label = 'g_x = ' + str(df_MuTau.iloc[g].g_x), color ='C5')
+plt.plot(sm_er*1e6, getratio(a) , label = '$g_x=$' + str(df_MuTau.iloc[a].g_x), color ='C0')
+plt.plot(sm_er*1e6, getratio(b) , label = '$g_x=$' + str(df_MuTau.iloc[b].g_x), color ='C1')
+plt.plot(sm_er*1e6, getratio(c) , label = '$g_x=$' + str(df_MuTau.iloc[c].g_x), color ='C2')
+plt.plot(sm_er*1e6, getratio(d) , label = '$g_x=$' + str(df_MuTau.iloc[d].g_x), color ='C3')
+plt.plot(sm_er*1e6, getratio(e) , label = '$g_x=$' + str(df_MuTau.iloc[e].g_x), color ='C4')
+plt.plot(sm_er*1e6, getratio(g) , label = '$g_x=$' + str(df_MuTau.iloc[g].g_x), color ='C5')
 
 plt.title('Fixed mass: m_A = ' + str(fixed_mass) + ' [GeV]')
 plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
@@ -329,12 +329,12 @@ ax1.set_xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
 ax1.set_ylabel(r'$\rm{d}R/\rm{d}E_R\,\,\,\left[\rm{keV}^{-1}\,\,\rm{ton}^{-1}\,\,\rm{yr}^{-1}\right]$', size=16)
 
 
-ax1.loglog(df_MuTau.iloc[a].ERs*1e6, df_MuTau.iloc[a].spec, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A), color ='C0' )
-ax1.loglog(df_MuTau.iloc[b].ERs*1e6, df_MuTau.iloc[b].spec, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A), color ='C1' )
-ax1.loglog(df_MuTau.iloc[c].ERs*1e6, df_MuTau.iloc[c].spec, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) + ', m_A = ' + str(df_MuTau.iloc[c].m_A), color ='C2' )
-ax1.loglog(df_MuTau.iloc[d].ERs*1e6, df_MuTau.iloc[d].spec, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) + ', m_A = ' + str(df_MuTau.iloc[d].m_A), color ='C3' )
-ax1.loglog(df_MuTau.iloc[e].ERs*1e6, df_MuTau.iloc[e].spec, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) + ', m_A = ' + str(df_MuTau.iloc[e].m_A), color ='C4' )
-ax1.loglog(df_MuTau.iloc[g].ERs*1e6, df_MuTau.iloc[g].spec, label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) + ', m_A = ' + str(df_MuTau.iloc[g].m_A), color ='C5' )
+ax1.loglog(df_MuTau.iloc[a].ERs*1e6, df_MuTau.iloc[a].spec, label = '$g_x=$' + str(df_MuTau.iloc[a].g_x) + '$M_A=$' + str(df_MuTau.iloc[a].m_A), color ='C0' )
+ax1.loglog(df_MuTau.iloc[b].ERs*1e6, df_MuTau.iloc[b].spec, label = '$g_x=$' + str(df_MuTau.iloc[b].g_x) + '$M_A=$' + str(df_MuTau.iloc[b].m_A), color ='C1' )
+ax1.loglog(df_MuTau.iloc[c].ERs*1e6, df_MuTau.iloc[c].spec, label = '$g_x=$' + str(df_MuTau.iloc[c].g_x) + '$M_A=$' + str(df_MuTau.iloc[c].m_A), color ='C2' )
+ax1.loglog(df_MuTau.iloc[d].ERs*1e6, df_MuTau.iloc[d].spec, label = '$g_x=$' + str(df_MuTau.iloc[d].g_x) + '$M_A=$' + str(df_MuTau.iloc[d].m_A), color ='C3' )
+ax1.loglog(df_MuTau.iloc[e].ERs*1e6, df_MuTau.iloc[e].spec, label = '$g_x=$' + str(df_MuTau.iloc[e].g_x) + '$M_A=$' + str(df_MuTau.iloc[e].m_A), color ='C4' )
+ax1.loglog(df_MuTau.iloc[g].ERs*1e6, df_MuTau.iloc[g].spec, label = '$g_x=$' + str(df_MuTau.iloc[g].g_x) + '$M_A=$' + str(df_MuTau.iloc[g].m_A), color ='C5' )
 
 ax1.legend(fontsize=12,frameon=False,loc='lower left')
 
@@ -370,12 +370,12 @@ plt.axhline(y=1, color='r', linestyle='--')
 
 
 
-plt.plot(sm_er*1e6, getratio(a) , label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A), color ='C0' )
-plt.plot(sm_er*1e6, getratio(b) , label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A), color ='C1' )
-plt.plot(sm_er*1e6, getratio(c) , label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) + ', m_A = ' + str(df_MuTau.iloc[c].m_A), color ='C2' )
-plt.plot(sm_er*1e6, getratio(d) , label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) + ', m_A = ' + str(df_MuTau.iloc[d].m_A), color ='C3' )
-plt.plot(sm_er*1e6, getratio(e) , label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) + ', m_A = ' + str(df_MuTau.iloc[e].m_A), color ='C4' )
-plt.plot(sm_er*1e6, getratio(g) , label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) + ', m_A = ' + str(df_MuTau.iloc[g].m_A), color ='C5' )
+plt.plot(sm_er*1e6, getratio(a) , label = '$g_x=$' + str(df_MuTau.iloc[a].g_x) + '$M_A=$' + str(df_MuTau.iloc[a].m_A), color ='C0' )
+plt.plot(sm_er*1e6, getratio(b) , label = '$g_x=$' + str(df_MuTau.iloc[b].g_x) + '$M_A=$' + str(df_MuTau.iloc[b].m_A), color ='C1' )
+plt.plot(sm_er*1e6, getratio(c) , label = '$g_x=$' + str(df_MuTau.iloc[c].g_x) + '$M_A=$' + str(df_MuTau.iloc[c].m_A), color ='C2' )
+plt.plot(sm_er*1e6, getratio(d) , label = '$g_x=$' + str(df_MuTau.iloc[d].g_x) + '$M_A=$' + str(df_MuTau.iloc[d].m_A), color ='C3' )
+plt.plot(sm_er*1e6, getratio(e) , label = '$g_x=$' + str(df_MuTau.iloc[e].g_x) + '$M_A=$' + str(df_MuTau.iloc[e].m_A), color ='C4' )
+plt.plot(sm_er*1e6, getratio(g) , label = '$g_x=$' + str(df_MuTau.iloc[g].g_x) + '$M_A=$' + str(df_MuTau.iloc[g].m_A), color ='C5' )
 
 plt.title('Ratio: Benchmark points', size=20)
 plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
@@ -392,38 +392,38 @@ plt.legend(fontsize=12,frameon=False,loc='center left')
 
 # In[ ]: CONVERTING TO PE a
 
-acev, abins = spectope(df_MuTau.iloc[a].ERs, df_MuTau.iloc[a].spec)
+acev, abins, aerr = spectope(df_MuTau.iloc[a].ERs, df_MuTau.iloc[a].spec)
 
 
 
 
 # In[ ]: CONVERTING TO PE b
 
-bcev, bbins = spectope(df_MuTau.iloc[b].ERs, df_MuTau.iloc[b].spec)
+bcev, bbins, berr = spectope(df_MuTau.iloc[b].ERs, df_MuTau.iloc[b].spec)
 
 
 
 # In[ ]: CONVERTING TO PE c
 
-ccev, cbins = spectope(df_MuTau.iloc[c].ERs, df_MuTau.iloc[c].spec)
+ccev, cbins, cerr = spectope(df_MuTau.iloc[c].ERs, df_MuTau.iloc[c].spec)
 
 
 # In[ ]: CONVERTING TO PE d
 
-dcev, dbins = spectope(df_MuTau.iloc[d].ERs, df_MuTau.iloc[d].spec)
+dcev, dbins, derr = spectope(df_MuTau.iloc[d].ERs, df_MuTau.iloc[d].spec)
 
 
 # In[ ]: CONVERTING TO PE e
 
-ecev, ebins = spectope(df_MuTau.iloc[e].ERs, df_MuTau.iloc[e].spec)
+ecev, ebins, eerr = spectope(df_MuTau.iloc[e].ERs, df_MuTau.iloc[e].spec)
 
 
 # In[ ]: CONVERTING TO PE g
 
-gcev, gbins = spectope(df_MuTau.iloc[g].ERs, df_MuTau.iloc[g].spec)
+gcev, gbins, gerr = spectope(df_MuTau.iloc[g].ERs, df_MuTau.iloc[g].spec)
 
 
-#%%
+#%% PE PLOTS BENCHMARK
 
 # plotting
 
@@ -433,12 +433,18 @@ ax.set_yscale('log')
 ax.set_xlabel('Number of electrons',fontsize=26)
 ax.set_ylabel('Events per tyr',fontsize=26) 
 
-ax.plot(abins, acev, '-o',markersize=5, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A))
-ax.plot(bbins, bcev, '-o',markersize=5, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A))
-ax.plot(cbins, ccev, '-o',markersize=5, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) + ', m_A = ' + str(df_MuTau.iloc[c].m_A))
-ax.plot(dbins, dcev, '-o',markersize=5, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) + ', m_A = ' + str(df_MuTau.iloc[d].m_A))
-ax.plot(ebins, ecev, '-o',markersize=5, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) + ', m_A = ' + str(df_MuTau.iloc[e].m_A))
-ax.plot(gbins, gcev, '-o',markersize=5, label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) + ', m_A = ' + str(df_MuTau.iloc[g].m_A))
+ax.errorbar(abins, acev,yerr=aerr*acev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3, label = r'$\frac{N_{Events}}{\sqrt{N_{Samples}}}$')
+ax.plot(abins, acev, label = f'$g_x$ =  {df_MuTau.iloc[a].g_x:.4f}, $M_A$ = {df_MuTau.iloc[a].m_A:.4f}')
+ax.errorbar(bbins, bcev,yerr=berr*bcev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(bbins, bcev, label = f'$g_x$ =  {df_MuTau.iloc[b].g_x:.4f}, $M_A$ = {df_MuTau.iloc[b].m_A:.4f}')
+ax.errorbar(cbins, ccev,yerr=cerr*ccev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(cbins, ccev, label = f'$g_x$ =  {df_MuTau.iloc[c].g_x:.4f}, $M_A$ = {df_MuTau.iloc[c].m_A:.4f}')
+ax.errorbar(dbins, dcev,yerr=derr*dcev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(dbins, dcev, label = f'$g_x$ =  {df_MuTau.iloc[d].g_x:.4f}, $M_A$ = {df_MuTau.iloc[d].m_A:.4f}')
+ax.errorbar(ebins, ecev,yerr=eerr*ecev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(ebins, ecev, label = f'$g_x$ =  {df_MuTau.iloc[e].g_x:.4f}, $M_A$ = {df_MuTau.iloc[e].m_A:.4f}')
+ax.errorbar(gbins, gcev,yerr=gerr*gcev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(gbins, gcev, label = f'$g_x$ =  {df_MuTau.iloc[g].g_x:.4f}, $M_A$ = {df_MuTau.iloc[g].m_A:.4f}')
 
 ax.set_xlim(0,65)
 
@@ -450,9 +456,9 @@ ax.legend(fontsize=18,frameon=False,loc='upper right')
 
 #%% Comparing to SM spec in PE
 
-mycenns = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[:,1]
-mybins = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[:,0]
-
+mycenns = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt',delimiter=' ')[:,1]
+mybins = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt',delimiter=' ')[:,0]
+myerr = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt',delimiter=' ')[:,2]
 
 #%% Plotting ratio of pe with sm
 
@@ -463,12 +469,18 @@ ax.set_yscale('log')
 ax.set_xlabel('Number of electrons',fontsize=26)
 ax.set_ylabel(r'$\frac{(BSM + SM )}{SM}$', size=26)
 
-ax.plot(abins, acev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[a].g_x) + ', m_A = ' + str(df_MuTau.iloc[a].m_A))
-ax.plot(bbins, bcev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[b].g_x) + ', m_A = ' + str(df_MuTau.iloc[b].m_A))
-ax.plot(cbins, ccev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[c].g_x) + ', m_A = ' + str(df_MuTau.iloc[c].m_A))
-ax.plot(dbins, dcev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[d].g_x) + ', m_A = ' + str(df_MuTau.iloc[d].m_A))
-ax.plot(ebins, ecev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[e].g_x) + ', m_A = ' + str(df_MuTau.iloc[e].m_A))
-ax.plot(gbins, gcev/mycenns, '-',markersize=15, label = 'g_x = ' + str(df_MuTau.iloc[g].g_x) + ', m_A = ' + str(df_MuTau.iloc[g].m_A))
+ax.errorbar(abins, acev/mycenns,yerr=np.sqrt(aerr**2+myerr**2)*acev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3, label = r'$\frac{N_{Events}}{\sqrt{N_{Samples}}}$')
+ax.plot(abins, acev/mycenns, '-',markersize=15, label = f'$g_x$ =  {df_MuTau.iloc[a].g_x:.4f}, $M_A$ = {df_MuTau.iloc[a].m_A:.4f}')
+ax.errorbar(bbins, bcev/mycenns,yerr=np.sqrt(berr**2+myerr**2)*bcev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(bbins, bcev/mycenns, '-',markersize=15, label = f'$g_x$ =  {df_MuTau.iloc[b].g_x:.4f}, $M_A$ = {df_MuTau.iloc[b].m_A:.4f}')
+ax.errorbar(cbins, ccev/mycenns,yerr=np.sqrt(cerr**2+myerr**2)*ccev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(cbins, ccev/mycenns, '-',markersize=15, label = f'$g_x$ =  {df_MuTau.iloc[c].g_x:.4f}, $M_A$ = {df_MuTau.iloc[c].m_A:.4f}')
+ax.errorbar(dbins, dcev/mycenns,yerr=np.sqrt(derr**2+myerr**2)*dcev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(dbins, dcev/mycenns, '-',markersize=15, label = f'$g_x$ =  {df_MuTau.iloc[d].g_x:.4f}, $M_A$ = {df_MuTau.iloc[d].m_A:.4f}')
+ax.errorbar(ebins, ecev/mycenns,yerr=np.sqrt(eerr**2+myerr**2)*ecev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(ebins, ecev/mycenns, '-',markersize=15, label = f'$g_x$ =  {df_MuTau.iloc[e].g_x:.4f}, $M_A$ = {df_MuTau.iloc[e].m_A:.4f}')
+ax.errorbar(gbins, gcev/mycenns,yerr=np.sqrt(gerr**2+myerr**2)*gcev, fmt='o', capsize=3, color='k',linewidth=2, markersize=3)
+ax.plot(gbins, gcev/mycenns, '-',markersize=15, label = f'$g_x$ =  {df_MuTau.iloc[g].g_x:.4f}, $M_A$ = {df_MuTau.iloc[g].m_A:.4f}')
 
 ax.set_xlim(0,50)
 
@@ -544,12 +556,12 @@ plt.axhline(y=1, color='r', linestyle='--')
 
 #plt.ylim(0, 10)
 
-plt.plot(sm_er*1e6, getratio(a) , label = 'g_x = ' + str(df_MuTau.iloc[a].g_x), color ='C0')
-plt.plot(sm_er*1e6, getratio(b) , label = 'g_x = ' + str(df_MuTau.iloc[b].g_x), color ='C1')
-plt.plot(sm_er*1e6, getratio(c) , label = 'g_x = ' + str(df_MuTau.iloc[c].g_x), color ='C2')
-plt.plot(sm_er*1e6, getratio(d) , label = 'g_x = ' + str(df_MuTau.iloc[d].g_x), color ='C3')
-plt.plot(sm_er*1e6, getratio(e) , label = 'g_x = ' + str(df_MuTau.iloc[e].g_x), color ='C4')
-plt.plot(sm_er*1e6, getratio(g) , label = 'g_x = ' + str(df_MuTau.iloc[g].g_x), color ='C5')
+plt.plot(sm_er*1e6, getratio(a) , label = '$g_x=$' + str(df_MuTau.iloc[a].g_x), color ='C0')
+plt.plot(sm_er*1e6, getratio(b) , label = '$g_x=$' + str(df_MuTau.iloc[b].g_x), color ='C1')
+plt.plot(sm_er*1e6, getratio(c) , label = '$g_x=$' + str(df_MuTau.iloc[c].g_x), color ='C2')
+plt.plot(sm_er*1e6, getratio(d) , label = '$g_x=$' + str(df_MuTau.iloc[d].g_x), color ='C3')
+plt.plot(sm_er*1e6, getratio(e) , label = '$g_x=$' + str(df_MuTau.iloc[e].g_x), color ='C4')
+plt.plot(sm_er*1e6, getratio(g) , label = '$g_x=$' + str(df_MuTau.iloc[g].g_x), color ='C5')
 
 plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
 plt.ylabel(r'$\frac{(BSM + SM )}{SM}$', size=20)
@@ -574,7 +586,6 @@ plt.legend(fontsize=12,frameon=False,loc='upper right')
 # using traps for the bsm specs then divding by the value for the sm - gives an indication of the difference between sma nd bsm
 # find index above threshold for both and compare above a given energy
 
-#TODO find energies relevant for 50PE+ photoelectron production
 
 sm_index = bisect.bisect_left(sm_er, 6.25e-6)
 index = bisect.bisect_left(df_MuTau.iloc[1].ERs, 6.25e-6)

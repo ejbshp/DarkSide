@@ -6,6 +6,8 @@ func_my_cevns.py
 author: EB
 
 Function that onverts neutrino spectrum data from recoil energy into Photoelectron
+
+May 12 2022: Function now returns stat error of the cevns sig
 """
 
 import numpy as np
@@ -50,6 +52,7 @@ def spectope(er, spec):
     -------
     my_cevns: The events per tyr
     bins: the binning information (PE)
+    my_cevns_err: relative stat error on my_cevns - when plotting multiply by the spec
 
     '''
     # empty list to add pe response to - list of number of PE produced in an event
@@ -57,7 +60,7 @@ def spectope(er, spec):
     
     # define variables
     # multiply to sample more - smooth things out
-    mult = 5000
+    mult = 1000
     lower_threshold = 0.1 #kev
     # to get last probs in response map
     ran = False
@@ -133,7 +136,12 @@ def spectope(er, spec):
     
     # making sure that bins and my_cevns are the same length
     bins = bins[0:len(my_cevns)]
+        
+    # =============================================================================
+    # Stat errors - 1/sqrt(N)
+    # =============================================================================
+    my_cevns_err = 1 / np.sqrt(my_cevns*mult)
     
-    return my_cevns, bins
+    return my_cevns, bins, my_cevns_err
 
 

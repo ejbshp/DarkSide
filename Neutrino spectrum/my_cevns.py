@@ -142,12 +142,12 @@ bins = bin_edges[1::2]
 #%%
 
 # =============================================================================
-# Estmating stat errors
+# Estmating stat errors - realtive error
 # =============================================================================
 
 # error on each bin will be 1/sqrt(N) with N e being the number of times sampled into that bin
 # N is our number of events in a bin multiplied by mult
-events_err = my_cevns / np.sqrt(my_cevns*mult)
+events_err = 1 / np.sqrt(my_cevns*mult)
 
 
 #%%
@@ -185,8 +185,9 @@ f=plt.figure(figsize=(10,8))
 
 #plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
 # plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
-
-plt.errorbar(bins,my_cevns,yerr=events_err, fmt='o', capsize=3, color='k',linewidth=2, label = r'$\frac{N_{Events}}{\sqrt{N_{Samples}}}$')
+yerr = my_cevns * events_err
+bins = bins[0:len(my_cevns)]
+plt.errorbar(bins,my_cevns,yerr=yerr, fmt='o', capsize=3, color='k',linewidth=2, label = r'$\frac{N_{Events}}{\sqrt{N_{Samples}}}$')
 plt.bar(bins,my_cevns,width=1, log=True, alpha=0.7, label = 'SM CEvNS')
 
 plt.title('Input spec scaling: mult = ' + str(mult), size = 18)
