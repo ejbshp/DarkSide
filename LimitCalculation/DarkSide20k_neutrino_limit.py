@@ -62,13 +62,18 @@ gammabkgrd_dminus = gammabkgrd_m - gammabkgrd
 # cennssig_dminus = cennssig_m - cennssig
 
 #!!! Using new neutrino signal - multiplying bu ds20kl exposure
-cennssig = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A.txt',delimiter=' ')[firstbin:lastbin,1]*ds20k_exposure_tonneyear
+cennssig = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt',delimiter=' ')[firstbin:lastbin,1]*ds20k_exposure_tonneyear
+rel_cenns_err = np.loadtxt('/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt',delimiter=' ')[firstbin:lastbin,2]
+cennserr = rel_cenns_err * cennssig
 # no energy scaling on cenns
 cennssig_p = 0
 cennssig_m = 0
 cennssig_dplus = cennssig_p - cennssig
 cennssig_dminus = cennssig_m - cennssig
 
+
+# # testing the bins with events < 1 - do these bins affect the limit?
+# cennssig[41:] = np.zeros(5)
 
 
 # get bins
@@ -78,17 +83,17 @@ bins = (np.loadtxt('Data_files/ds20k-39Ar_bkgrd.dat',delimiter=' '))[firstbin:la
 # single bin
 if singlebin == True: # summing all of the input arrays
     
-    ar38bkgrd = sum(ar38bkgrd)
-    ar38bkgrd_dplus = sum(ar38bkgrd_dplus)
-    ar38bkgrd_dminus = sum(ar38bkgrd_dminus)
+    ar38bkgrd = np.full(1,np.sum(ar38bkgrd))
+    ar38bkgrd_dplus = np.full(1,np.sum(ar38bkgrd_dplus))
+    ar38bkgrd_dminus = np.full(1,np.sum(ar38bkgrd_dminus))
     
-    gammabkgrd = sum(gammabkgrd)
-    gammabkgrd_dplus = sum(gammabkgrd_dplus)
-    gammabkgrd_dminus = sum(gammabkgrd_dminus)
+    gammabkgrd = np.full(1,np.sum(gammabkgrd))
+    gammabkgrd_dplus = np.full(1,np.sum(gammabkgrd_dplus))
+    gammabkgrd_dminus = np.full(1,np.sum(gammabkgrd_dminus))
     
-    cennssig = sum(cennssig)
-    cennssig_dplus = sum(cennssig_dplus)
-    cennssig_dminus = sum(cennssig_dminus)
+    cennssig = np.full(1,np.sum(cennssig))
+    cennssig_dplus = np.full(1,np.sum(cennssig_dplus))
+    cennssig_dminus = np.full(1,np.sum(cennssig_dminus))
 
 # =============================================================================
 # Defining functions
@@ -107,30 +112,20 @@ def construct_covariance (uncertainty_amplitudes, correlation_matrix) :
     
     Returns the covariance matrix
     '''
-    if singlebin == True: 
-        print('herhe!!')
-        # uncorrelated - however we only have one measurement
-        # this has to be fully correlated with itself
-        if correlation_matrix == 0:
-            covariance_matrix = 1
-        # correlated - use formula - covij = corrij x erri x errj
-        elif correlation_matrix == 1:
-            covariance_matrix = uncertainty_amplitudes**2
-        return covariance_matrix
-    else: 
-        num_measurements = len(uncertainty_amplitudes)
-        # uncertaities uncorrelated - matrix of zeros with diagonal values of one (uncertainties are correlated only with themselves)
-        if (type(correlation_matrix) is int) and (correlation_matrix == 0) :
-            correlation_matrix = np.eye(num_measurements)
-        # uncertainties correlated - matrix of ones (all uncertainties fully correlated)
-        elif (type(correlation_matrix) is int) and (correlation_matrix == 1) :
-            correlation_matrix = np.ones(shape=(num_measurements,num_measurements))
-        # creating covariance matrix - Covij = Corrij x erri x errj
-        covariance_matrix = np.zeros(shape=(num_measurements, num_measurements))    
-        for i, ex in enumerate(uncertainty_amplitudes) :
-            for j, ey in enumerate(uncertainty_amplitudes) :
-                covariance_matrix[i, j] = correlation_matrix[i, j]*ex*ey
-        return covariance_matrix
+   
+    num_measurements = len(uncertainty_amplitudes)
+    # uncertaities uncorrelated - matrix of zeros with diagonal values of one (uncertainties are correlated only with themselves)
+    if (type(correlation_matrix) is int) and (correlation_matrix == 0) :
+        correlation_matrix = np.eye(num_measurements)
+    # uncertainties correlated - matrix of ones (all uncertainties fully correlated)
+    elif (type(correlation_matrix) is int) and (correlation_matrix == 1) :
+        correlation_matrix = np.ones(shape=(num_measurements,num_measurements))
+    # creating covariance matrix - Covij = Corrij x erri x errj
+    covariance_matrix = np.zeros(shape=(num_measurements, num_measurements))    
+    for i, ex in enumerate(uncertainty_amplitudes) :
+        for j, ey in enumerate(uncertainty_amplitudes) :
+            covariance_matrix[i, j] = correlation_matrix[i, j]*ex*ey
+    return covariance_matrix
 
 
 def get_prediction (c,energyscaleAr_NP) :
@@ -307,9 +302,10 @@ data_stat_uncertainties = measured_values**0.5
 ar39_covariance  = construct_covariance(ar39_uncertainty, 1) # 1 or 0 depending on if uncertainty is correlated or not
 gamma_covariance = construct_covariance(gamma_uncertainty, 1)
 data_stat_covariance = construct_covariance(data_stat_uncertainties, 0)
+cenns_covariance = construct_covariance(cennserr, 1)
 
 # now get the total covariance matrix and inverse/det for use in likelihood calc
-total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance
+total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance  + cenns_covariance
 
 if singlebin == True: 
     print('HERE')

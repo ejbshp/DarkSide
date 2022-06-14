@@ -8,6 +8,7 @@ author: EB
 Function that onverts neutrino spectrum data from recoil energy into Photoelectron
 
 May 12 2022: Function now returns stat error of the cevns sig
+
 """
 
 import numpy as np
@@ -70,7 +71,7 @@ def spectope(er, spec):
     
     # getting PE count for the data given - loop though every energy
     for j in range(len(er)-1): # can't calculate diff for last point
-        
+        print(j)
         # get energy and rate at that point
         energy = er[j]
         rate = spec[j]
@@ -80,7 +81,7 @@ def spectope(er, spec):
         rate = width * rate * mult # mult to sample more - divide by this later
         
         # if energy is less than 0.1 no PE produced - so can skip sampling - round rate to int
-        if energy > lower_threshold: # not recording values under threshold
+        if energy > lower_threshold:
             
             # find index of energy bin - note doesn't count from zero
             index = bisect.bisect_left(ebin_start, energy) - 1
