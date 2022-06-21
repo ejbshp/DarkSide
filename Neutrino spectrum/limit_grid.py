@@ -14,7 +14,7 @@ Converting specs of selected values to pe specs and writing to file
 
 files are saved to Neutrino spectrum/output_grid
 
-
+Edit: June 22 using diff to choose points to convert
 
 """
 
@@ -72,88 +72,51 @@ for p in LMuTaupaths:
         #print(temp_entry)
         df_MuTau = df_MuTau.append(temp_entry, ignore_index=True)
 
-#%% Picking values of g_x and M_A for the grid
 
-# # g values are between 1e-4 and 1e-2 - getting log distributed array of values
-# g_values = np.logspace(np.log10(1e-4),np.log10(1e-2),num=3)
-# # m values are between 1e-3 and 1 - getting log distributed array of values
-# m_values = np.logspace(np.log10(1e-3),np.log10(1),num=3)
+# adding in diff
 
+sm_index = bisect.bisect_left(sm_er, 0.1e-6)
 
-#%% Getting PE specs for the values that have been selected
+index = bisect.bisect_left(df_MuTau.iloc[1].ERs, 0.1e-6)
+df_MuTau['diff'] = df_MuTau.apply(lambda x: np.trapz(x.spec[index:], x.ERs[index:])/ np.trapz(sm_spec[sm_index:], sm_er[sm_index:]), axis=1)
 
-print(df_MuTau)
-
-# new empty column for values
-df_MuTau['pe_spec'] = pd.NaT
-df_MuTau['pe_bins'] = pd.NaT
-df_MuTau['pe_err'] = pd.NaT
-
-def getindex(g, m):
-    '''
-    func to help find rows in the dataframe which have the values of g and m 
-    we are looking for
-    '''
-    # selecting the firt row that meets the condtions
-    # allowing 5% either side
-    mult = 1.05
-    mult2 = 0.95
-    if g < 1e-3: mult = 1.1; mult2 = 0.99
-
-    index = df_MuTau[(df_MuTau['g_x'] < mult*g) & (df_MuTau['g_x'] > mult2*g) & (df_MuTau['m_A']< 1.05*m) & (df_MuTau['m_A'] > 0.95*m)].index[0]
-    return index
+diffs = df_MuTau['diff']
 
 
-#%% First value
+# #%% First value - takes a long time
 
-index = getindex(0.003, 0.002)
-# get the er_spec and energies
-spec = df_MuTau.spec[index]
-er = df_MuTau.ERs[index]
-# convert spec to pe
-cev, bins, err = spectope(er, spec)
+# index = getindex(0.003, 0.002)
+# # get the er_spec and energies
+# spec = df_MuTau.spec[index]
+# er = df_MuTau.ERs[index]
+# # convert spec to pe
+# cev, bins, err = spectope(er, spec)
 
-#%% saving to file just in case
-filename = 'first_value_pe_spec.txt'
-file = open(filename, 'w')
+# # saving to file just in case
+# filename = 'first_value_pe_spec.txt'
+# file = open(filename, 'w')
 
-for n in range(len(bins)-1):
-    file.write(str(bins[n]) + ' ' + str(cev[n]) + ' ' + str(err[n]) + '\n')
+# for n in range(len(bins)-1):
+#     file.write(str(bins[n]) + ' ' + str(cev[n]) + ' ' + str(err[n]) + '\n')
     
-file.close()
+# file.close()
 
-
-#%% add to data frame
-
-df_MuTau.iat[index,4] = cev
-df_MuTau.iat[index,5] = bins
-df_MuTau.iat[index,6] = err
-
-# check that the values have been added
-print( df_MuTau[ (df_MuTau.pe_spec.notnull()) ] )
+# # check that the values have been added
+# print( df_MuTau[ (df_MuTau.pe_spec.notnull()) ] )
 
 #%% Grid values
+#Picking values of g_x and M_A for the grid
 
-# unpacking pairs of values I want to use for the grid
-g_values = np.loadtxt('grid_values.txt',delimiter=' ')[:,0]
-m_values = np.loadtxt('grid_values.txt',delimiter=' ')[:,1]
+# # g values are between 1e-4 and 1e-2 - getting log distributed array of values
+g_values = np.logspace(np.log10(1e-4),np.log10(1e-2),num=100)
+# # m values are between 1e-3 and 1 - getting log distributed array of values
+m_values = np.logspace(np.log10(1e-3),np.log10(1),num=100)
 
 
+# # unpacking pairs of values I want to use for the grid
+# g_values = np.loadtxt('grid_values.txt',delimiter=' ')[:,0]
+# m_values = np.loadtxt('grid_values.txt',delimiter=' ')[:,1]
 
-# #%%
-
-# # plotting to see if its correct
-# fig=plt.figure(3,figsize=(10,8))
-
-# # plotting the diff with gx and M
-# plt.plot(m_values, g_values,'o')
-# plt.ylabel('$g_x$ [GeV]', size=16)
-# plt.xlabel('$M_A$ [GeV]', size=16)
-# plt.xscale('log')
-# plt.yscale('log')
-# plt.xlim(1e-3,1)
-# plt.ylim(1e-4,1e-2)
-# plt.show()
 
 
 #%% Get values which haven't been processed
@@ -195,10 +158,14 @@ for i in range(len(g_values)):
     g = g_values[i]
     m = m_values[i]
     
-    print(g, m)
+    # get diff for these values of g and m
+    df_index = getindex(g, m)
+    # skip if diff isn't interesting
+    if df_MuTau.loc[df_index, 'diff'] > 2.0 or df_MuTau.loc[df_index, 'diff'] < 1.1:
+        continue
     
     # get filename
-    filename = 'output_grid/mutau_pe_spec_' + str(g) + '_' + str(m) + '.txt'
+    filename = 'output_grid/mutau_pe_spec_' + f'{g:.3}' + '_' + f'{m:.3}' + '.txt'
 
     # check if this has been processed before
     if os.path.exists(filename) == False:
@@ -213,26 +180,20 @@ for i in range(len(g_values)):
         # convert spec to pe
         cev, bins, err = spectope(er, spec)
         
-        # saving to file just in case
+        # saving to file
         file = open(filename, 'w')
         for n in range(len(bins)-1):
             file.write(str(bins[n]) + ' ' + str(cev[n]) + ' ' + str(err[n]) + '\n')
         file.close()
         
-        # add to data frame
-        df_MuTau.iat[index,4] = cev
-        df_MuTau.iat[index,5] = bins
-        df_MuTau.iat[index,6] = err
+        # add g and m values to grid_values file
+        file = open('grid_values.txt', 'a')
+        file.write(f'{g:.3}' + ' ' + f'{m:.3}' + '\n')
+        file.close()
         
         # add index to list fmi
         less_list.append(index)
         
-
-        
-
-
-
-
 
 
 

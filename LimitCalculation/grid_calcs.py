@@ -66,7 +66,7 @@ for i in range(len(g_values)):
 
 #%% Save to file
 
-filename = 'grid_limits_' + str(firstbin) + '_' + str(lastbin) + '_' + str(bkgrd_err) + '_' + str(ds20k_exposure_tonneyear)  + '.txt'
+filename = 'more_grid_limits_' + str(firstbin) + '_' + str(lastbin) + '_' + str(bkgrd_err) + '_' + str(ds20k_exposure_tonneyear)  + '.txt'
 file = open(filename, 'w')
 
 for n in range(len(g_values)):

@@ -155,7 +155,7 @@ events_err = 1 / np.sqrt(my_cevns*mult)
 # =============================================================================
 # Writing data to file
 # =============================================================================
-filename = 'output_my_cevns/PE_argon_SM_' + data_source + '_with_err.txt'
+filename = 'output_my_cevns/test_PE_argon_SM_' + data_source + '_with_err.txt'
 file = open(filename, 'w')
 
 for n in range(len(bins)-1):
@@ -200,14 +200,41 @@ plt.yscale('log')
 plt.legend(fontsize=18,frameon=False,loc='upper right')
 
 
-#%% plot hist of recoil enrgies producing events of 50PE+
+# #%% plot hist of recoil enrgies producing events of 50PE+
 
 
-fig=plt.figure(figsize=(10,8))
+# fig=plt.figure(figsize=(10,8))
 
-plt.hist(er_50_list, width=0.35,color='deepskyblue',alpha=0.7)
-plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
-plt.ylabel('Events with a response > 50PE', size=16)
+# plt.hist(er_50_list, width=0.35,color='deepskyblue',alpha=0.7)
+# plt.xlabel(r'$E_R\,\,\,\left[\rm{keV}\right]$', size=16)
+# plt.ylabel('Events with a response > 50PE', size=16)
 
+
+#%% testing new method
+
+
+from func_my_cevns import spectope
+
+
+tcevns, tbins, terr = spectope(er/1e6, spec)
+
+#%% plotting test
+
+# plotting
+f=plt.figure(figsize=(10,8))
+
+#plt.plot(bins, cevns, '-+',markersize=15, label='Using my_cevns', color='firebrick')
+# plt.plot(ds20k_bins,ds20k_cevns, '-+',markersize=15, label='RH spec in PE', color='royalblue')
+yerr = tcevns * terr
+bins = tbins[0:len(tcevns)]
+plt.errorbar(bins, tcevns,yerr=yerr, fmt='o', capsize=3, color='k',linewidth=2, label = r'$\frac{N_{Events}}{\sqrt{N_{Samples}}}$')
+plt.bar(bins,tcevns,width=1, log=True, alpha=0.7, label = 'SM CEvNS', color='firebrick')
+
+plt.xlim(0, 70)
+
+plt.xlabel('Number of electrons',fontsize=26)
+plt.ylabel('Events per tyr',fontsize=26) 
+plt.yscale('log')
+plt.legend(fontsize=18,frameon=False,loc='upper right')
 
 
