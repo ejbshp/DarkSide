@@ -119,6 +119,17 @@ m_values = np.logspace(np.log10(1e-3),np.log10(1),num=100)
 
 
 
+
+
+
+
+
+
+
+
+
+
+
 #%% Get values which haven't been processed
 # index of values that I sampled less for for the sake of time
 less_list = []
