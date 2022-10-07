@@ -7,6 +7,13 @@ EB
 
 Looping through all of the grid values to get upper limits for the spec
 
+
+TO DO:
+    
+Make sure to note if SM CEvNS is included in signal or background
+make sure uncertainties are consistent
+
+
 """
 
 

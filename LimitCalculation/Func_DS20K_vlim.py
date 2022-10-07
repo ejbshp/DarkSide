@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+  #!/usr/bin/env python
 # coding: utf-8
 
 '''
@@ -11,6 +11,8 @@ Date: 1st Dec 2021
 
 Adapted from DarkSide20k_neutrino_limit. Creating a function for the limit calculation - so for example the effect of
 the background error on the limit can be investigated easily.
+
+Edit: June 2022 - Using new SM with error on that signal.
 
 '''
 
@@ -183,7 +185,7 @@ def get_limit_ds20k(alpha=0.1, plot=False) :
 
     return upper_limit
 
-def get_limit(firstbin, lastbin, bkgrd_err):
+def get_limit(firstbin, lastbin, bkgrd_err=0.15, bkgrd_scale=1 ):
     '''
     Calculates the limit for a specified electron threshold and uncertainty
     on the background.
@@ -191,7 +193,8 @@ def get_limit(firstbin, lastbin, bkgrd_err):
     Returns the upper confidence limit
     firstbin: Electron threshold to be used
     lastbin: last bin to use
-    bkgrd_err: uncertainty on the background
+    bkgrd_err: uncertainty on the background - default 15%
+    bkgrd_scale: scaling on the size of the radioactive background - default 1
     '''
     global measured_values
     global ar38bkgrd
@@ -225,13 +228,28 @@ def get_limit(firstbin, lastbin, bkgrd_err):
     gammabkgrd_dplus = gammabkgrd_p - gammabkgrd
     gammabkgrd_dminus = gammabkgrd_m - gammabkgrd
     
+    # import SM CEvNS
+    sm_file = '/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt'
     
-    # neutrino signal
-    cennssig = np.loadtxt('Data_files/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
-    cennssig_p = np.loadtxt('Data_files/ds20k-cenns_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1]
-    cennssig_m = np.loadtxt('Data_files/ds20k-cenns_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1]
-    cennssig_dplus = cennssig_p - cennssig
-    cennssig_dminus = cennssig_m - cennssig
+    #loading data
+    sm_cenns = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,1]*100 # multiply by exposure
+    rel_cenns_err = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,2]
+    # removing infinite or nans from errirs
+    sm_rel_cenns_err = np.nan_to_num(rel_cenns_err, nan=1.0, posinf=1.0, neginf=1.0) # replae with 1 so errors will be as large as the value
+    sm_uncertainty = sm_rel_cenns_err*sm_cenns
+    
+    cennssig_dplus = 0 # don't have this for my cevns
+    cennssig_dminus = 0
+    
+    # scale the backgrounds
+    ar38bkgrd *= bkgrd_scale
+    ar38bkgrd_dplus *= bkgrd_scale
+    ar38bkgrd_dminus *= bkgrd_scale
+    
+    gammabkgrd *= bkgrd_scale
+    gammabkgrd_dplus *= bkgrd_scale
+    gammabkgrd_dminus *= bkgrd_scale
+    
     
     # =============================================================================
     # SM signal, uncertaities and covariance matrix
@@ -255,9 +273,10 @@ def get_limit(firstbin, lastbin, bkgrd_err):
     ar39_covariance  = construct_covariance(ar39_uncertainty, 1) # 1 or 0 depending on if uncertainty is correlated or not
     gamma_covariance = construct_covariance(gamma_uncertainty, 1)
     data_stat_covariance = construct_covariance(data_stat_uncertainties, 0)
+    sm_cevns_covariance = construct_covariance(sm_uncertainty, 0)
     
     # now get the total covariance matrix and inverse/det for use in likelihood calc
-    total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance
+    total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance + sm_cevns_covariance
     total_cov_inverse = np.linalg.inv(total_cov)
     total_cov_det = np.linalg.det(total_cov)
     
@@ -313,12 +332,18 @@ def single_get_limit(firstbin, lastbin, bkgrd_err):
     gammabkgrd_dminus = gammabkgrd_m - gammabkgrd
     
     
-    # neutrino signal
-    cennssig = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]))
-    cennssig_p = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-cenns_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1]))
-    cennssig_m = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-cenns_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1]))
-    cennssig_dplus = cennssig_p - cennssig
-    cennssig_dminus = cennssig_m - cennssig
+    # import SM CEvNS
+    sm_file = '/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt'
+    
+    #loading data
+    sm_cenns = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,1]*100 # multiply by exposure
+    rel_cenns_err = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,2]
+    # removing infinite or nans from errirs
+    sm_rel_cenns_err = np.nan_to_num(rel_cenns_err, nan=1.0, posinf=1.0, neginf=1.0) # replae with 1 so errors will be as large as the value
+    sm_uncertainty = sm_rel_cenns_err*sm_cenns
+    
+    cennssig_dplus = 0 # don't have this for my cevns
+    cennssig_dminus = 0
     
     # =============================================================================
     # SM signal, uncertaities and covariance matrix
@@ -342,9 +367,10 @@ def single_get_limit(firstbin, lastbin, bkgrd_err):
     ar39_covariance  = construct_covariance(ar39_uncertainty, 1) # 1 or 0 depending on if uncertainty is correlated or not
     gamma_covariance = construct_covariance(gamma_uncertainty, 1)
     data_stat_covariance = construct_covariance(data_stat_uncertainties, 0)
+    sm_cevns_covariance = construct_covariance(sm_uncertainty, 0)
     
     # now get the total covariance matrix and inverse/det for use in likelihood calc
-    total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance
+    total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance + sm_cevns_covariance
     total_cov_inverse = np.linalg.inv(total_cov)
     total_cov_det = np.linalg.det(total_cov)
     

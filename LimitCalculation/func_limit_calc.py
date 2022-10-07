@@ -11,6 +11,8 @@ Date: May 2022
 
 Adapted from DarkSide20k_neutrino_limit. Creating a function for the limit calculation
 
+June 2022: Changing correlation of cevns sig
+
 '''
 
 
@@ -182,7 +184,7 @@ def get_limit_ds20k(alpha=0.1, plot=False) :
 
     return upper_limit
 
-def get_limit(cevns, rel_cenns_err, firstbin, lastbin, bkgrd_err):
+def get_limit_var(cevns, rel_cenns_err, firstbin, lastbin, bkgrd_err=0.15, ar_scale=1, gam_scale=1):
     '''
     Calculates the limit for a specified electron threshold and uncertainty
     on the background.
@@ -212,15 +214,15 @@ def get_limit(cevns, rel_cenns_err, firstbin, lastbin, bkgrd_err):
     # =============================================================================
     
     # these are already scaled to the 100 tonneyear exposure
-    ar38bkgrd = np.loadtxt('Data_files/ds20k-39Ar_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
-    ar38bkgrd_p = np.loadtxt('Data_files/ds20k-39Ar_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1]
-    ar38bkgrd_m = np.loadtxt('Data_files/ds20k-39Ar_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1]
+    ar38bkgrd = (np.loadtxt('Data_files/ds20k-39Ar_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1])*ar_scale
+    ar38bkgrd_p = (np.loadtxt('Data_files/ds20k-39Ar_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1])*ar_scale
+    ar38bkgrd_m = (np.loadtxt('Data_files/ds20k-39Ar_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1])*ar_scale
     ar38bkgrd_dplus = ar38bkgrd_p - ar38bkgrd
     ar38bkgrd_dminus = ar38bkgrd_m - ar38bkgrd
     
-    gammabkgrd = np.loadtxt('Data_files/ds20k-gamma_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]
-    gammabkgrd_p = np.loadtxt('Data_files/ds20k-gamma_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1]
-    gammabkgrd_m = np.loadtxt('Data_files/ds20k-gamma_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1]
+    gammabkgrd = (np.loadtxt('Data_files/ds20k-gamma_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1])*gam_scale
+    gammabkgrd_p =(np.loadtxt('Data_files/ds20k-gamma_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1])*gam_scale
+    gammabkgrd_m = (np.loadtxt('Data_files/ds20k-gamma_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1])*gam_scale
     gammabkgrd_dplus = gammabkgrd_p - gammabkgrd
     gammabkgrd_dminus = gammabkgrd_m - gammabkgrd
     
@@ -230,6 +232,8 @@ def get_limit(cevns, rel_cenns_err, firstbin, lastbin, bkgrd_err):
     cenns_err = rel_cenns_err * cennssig
     cennssig_dplus = 0 # don't have this for cevns
     cennssig_dminus = 0
+    
+   
     
     # =============================================================================
     # SM signal, uncertaities and covariance matrix
@@ -246,6 +250,9 @@ def get_limit(cevns, rel_cenns_err, firstbin, lastbin, bkgrd_err):
     ar39_uncertainty = bkgrd_err*ar38bkgrd
     gamma_uncertainty = bkgrd_err*gammabkgrd
     
+    # incude 4% correlated uncertainty on cevns
+    cevns_norm_uncertainty = 0.04*cennssig
+    
     # statistical uncertainty on observed
     data_stat_uncertainties = measured_values**0.5
     
@@ -253,10 +260,104 @@ def get_limit(cevns, rel_cenns_err, firstbin, lastbin, bkgrd_err):
     ar39_covariance  = construct_covariance(ar39_uncertainty, 1) # 1 or 0 depending on if uncertainty is correlated or not
     gamma_covariance = construct_covariance(gamma_uncertainty, 1)
     data_stat_covariance = construct_covariance(data_stat_uncertainties, 0)
-    cenns_covariance = construct_covariance(cenns_err, 1)
+    cenns_covariance = construct_covariance(cenns_err, 0)
+    cenns_norm_covarance = construct_covariance(cevns_norm_uncertainty, 1)
     
     # now get the total covariance matrix and inverse/det for use in likelihood calc
-    total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance + cenns_covariance
+    total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance + cenns_covariance + cenns_norm_covarance
+    total_cov_inverse = np.linalg.inv(total_cov)
+    total_cov_det = np.linalg.det(total_cov)
+    
+    
+    # =============================================================================
+    # Calulating the limit
+    # =============================================================================
+    
+    return get_limit_ds20k(plot=True)
+
+def single_get_limit_var(cevns, rel_cenns_err, firstbin, lastbin, bkgrd_err=0.15, ar_scale=1, gam_scale=1):
+    '''
+    Calculates the limit for a specified electron threshold and uncertainty
+    on the background. As a single bin.
+
+    Returns the upper confidence limit
+    firstbin: Electron threshold to be used
+    lastbin: last bin to use
+    bkgrd_err: uncertainty on the background
+    '''
+    global measured_values
+    global ar38bkgrd
+    global ar38bkgrd_dminus
+    global ar38bkgrd_dplus
+    global gammabkgrd
+    global gammabkgrd_dplus
+    global gammabkgrd_dminus
+    global cennssig
+    global cennssig_dminus
+    global cennssig_dplus
+    global prediction
+    global total_cov
+    global total_cov_det
+    global total_cov_inverse
+
+    # =============================================================================
+    #  importing data
+    # =============================================================================
+    
+    # these are already scaled to the 100 tonneyear exposure
+    
+    # these are already scaled to the 100 tonneyear exposure
+    ar38bkgrd = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-39Ar_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]))*ar_scale
+    ar38bkgrd_p = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-39Ar_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1]))*ar_scale
+    ar38bkgrd_m = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-39Ar_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1]))*ar_scale
+    ar38bkgrd_dplus = ar38bkgrd_p - ar38bkgrd
+    ar38bkgrd_dminus = ar38bkgrd_m - ar38bkgrd
+    
+    gammabkgrd = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-gamma_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1]))*gam_scale
+    gammabkgrd_p = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-gamma_bkgrd-p.dat',delimiter=' ')[firstbin:lastbin,1]))*gam_scale
+    gammabkgrd_m = np.full(1,np.sum(np.loadtxt('Data_files/ds20k-gamma_bkgrd-m.dat',delimiter=' ')[firstbin:lastbin,1]))*gam_scale
+    gammabkgrd_dplus = gammabkgrd_p - gammabkgrd
+    gammabkgrd_dminus = gammabkgrd_m - gammabkgrd
+    
+    
+    # neutrino signal
+    cennssig = np.full(1,np.sum(cevns))
+    cenns_err_arr = rel_cenns_err * cennssig
+    cenns_err = np.full(1,np.sqrt(np.sum(cenns_err_arr**2))) # quadrature sum of all errors
+    cennssig_dplus = 0 # don't have this for cevns
+    cennssig_dminus = 0
+    
+    
+    # =============================================================================
+    # SM signal, uncertaities and covariance matrix
+    # =============================================================================
+    
+    # combining backgrounds - predicting we do not see cenns
+    prediction = (ar38bkgrd + gammabkgrd)
+    
+    # as this is a projection, we put the 'observed' = to the predicted backgrounds
+    measured_values = prediction
+    
+    
+    # include a 15% correlated uncertainty
+    ar39_uncertainty = bkgrd_err*ar38bkgrd
+    gamma_uncertainty = bkgrd_err*gammabkgrd
+    
+    # incude 4% correlated uncertainty on cevns
+    cevns_norm_uncertainty = 0.04*cennssig
+    
+    # statistical uncertainty on observed
+    data_stat_uncertainties = measured_values**0.5
+    
+    # creating covariance matrices
+    ar39_covariance  = construct_covariance(ar39_uncertainty, 1) # 1 or 0 depending on if uncertainty is correlated or not
+    gamma_covariance = construct_covariance(gamma_uncertainty, 1)
+    data_stat_covariance = construct_covariance(data_stat_uncertainties, 0)
+    cenns_covariance = construct_covariance(cenns_err, 0)
+    cenns_norm_covarance = construct_covariance(cevns_norm_uncertainty, 1)
+    
+    # now get the total covariance matrix and inverse/det for use in likelihood calc
+    total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance + cenns_covariance + cenns_norm_covarance
     total_cov_inverse = np.linalg.inv(total_cov)
     total_cov_det = np.linalg.det(total_cov)
     

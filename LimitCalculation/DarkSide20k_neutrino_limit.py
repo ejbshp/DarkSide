@@ -12,6 +12,8 @@ Date: Oct 2021
 Adapted from DarkSide20k_FullProjectedLimit. Now using neutrinos as signal not background, also we are
 not using any DM signal.
 
+July 2022: Adding in normalisation error on cevns signal
+
 '''
 
 
@@ -27,7 +29,7 @@ ds20k_exposure = 365*1000*100 # exposure in kgday
 ds20k_exposure_tonneyear = 100 # exposure in tyr - 5yr run with fiducial mass of 20t
 
 # the data is in number of electrons. use a 4e- threshold
-firstbin = 4 # usually 4
+firstbin = 0 # usually 4
 lastbin = 50 # usually 50
 
 # 15% uncertainty on backgrounds
@@ -295,6 +297,9 @@ measured_values = prediction
 ar39_uncertainty = per_err*ar38bkgrd
 gamma_uncertainty = per_err*gammabkgrd
 
+# incude 4% correlated uncertainty on cevns
+cevns_norm_uncertainty = 0.04*cennssig
+
 # statistical uncertainty on observed
 data_stat_uncertainties = measured_values**0.5
 
@@ -303,9 +308,10 @@ ar39_covariance  = construct_covariance(ar39_uncertainty, 1) # 1 or 0 depending 
 gamma_covariance = construct_covariance(gamma_uncertainty, 1)
 data_stat_covariance = construct_covariance(data_stat_uncertainties, 0)
 cenns_covariance = construct_covariance(cennserr, 1)
+cenns_norm_covarance = construct_covariance(cevns_norm_uncertainty, 1)
 
 # now get the total covariance matrix and inverse/det for use in likelihood calc
-total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance  + cenns_covariance
+total_cov  = ar39_covariance + gamma_covariance + data_stat_covariance  + cenns_covariance + cenns_norm_covarance
 
 if singlebin == True: 
     print('HERE')

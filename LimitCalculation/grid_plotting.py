@@ -13,14 +13,28 @@ from matplotlib import pyplot as plt
 import pandas as pd
 import glob
 from scipy import interpolate
+from scipy.interpolate import griddata
 
-
-# unpacking values - lower e thresh _ upper e thresh _ bkgrd err _ exposure tyr
+# unpacking values - lower e thresh _ upper e thresh _ bkgrd err _ exposure tyr -sm background
 g_values = np.loadtxt('more_grid_limits_4_50_0.15_100.txt',delimiter=' ')[:,0]
 m_values = np.loadtxt('more_grid_limits_4_50_0.15_100.txt',delimiter=' ')[:,1]
 limits = np.loadtxt('more_grid_limits_4_50_0.15_100.txt',delimiter=' ')[:,2]
 
+# values we want to interpolate the limit for
+# # g values are between 1e-4 and 1e-2 - getting log distributed array of values
+g_points = np.logspace(np.log10(1e-4),np.log10(1e-2),num=100)
+# # m values are between 1e-3 and 1 - getting log distributed array of values
+m_points = np.logspace(np.log10(1e-3),np.log10(1),num=100)
 
+# target interp grid
+grid_x,grid_y = np.meshgrid(m_points,g_points)
+
+g_and_m = list(zip(m_values, g_values))
+
+grid_z = griddata(g_and_m, limits, (grid_x, grid_y), method='linear')
+
+plt.imshow(grid_z)
+                       
 #%% trying to get into 3d matrix
 
 # remove repeats from m and g lists

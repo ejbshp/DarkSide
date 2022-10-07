@@ -8,71 +8,126 @@ Date: Dec 2021
 
 Calculating the limit for different background uncertainty
 
+Edit: June 2022 - Using updated SM Spec
+                - Adding in scaling background size
+
 '''
 
+from func_limit_calc import get_limit_var
 from Func_DS20K_vlim import get_limit, single_get_limit
 from matplotlib import pyplot as plt
 import numpy as np
 
 import matplotlib.lines as mlines
 import matplotlib.patches as mpatches
+import matplotlib.ticker
 
 import beepy
 
+#%% Import data and def func
 
-# =============================================================================
-# Calculate scaling factor for different values of firstbin and lastbin
-# =============================================================================
-lastbin = 51
+lastbin =50
+
 err_arr = np.geomspace(0.01,0.5,50)
 
-def get_values(threshold, lastbin,per_err_arr):
-    '''
-    Returns array of scaling factor values for an array of different background errors.
+# SM CEvNS
+sm_file = '/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt'
 
-    '''
-    limit_arr = []
-    slimit_arr= []
-    for err in per_err_arr:
-        print(err)
-        limit = get_limit(threshold, lastbin, err)
-        slimit = single_get_limit(threshold, lastbin, err)
-        limit_arr.append(limit)
-        slimit_arr.append(slimit)
-    # bins
-    bins = np.arange(threshold,lastbin)
-    return limit_arr, slimit_arr, bins
 
-   
+
 #%% 0e threshold
 
-limits0, slimits0, bins0 = get_values(0,lastbin,err_arr)
+firstbin = 0
+#loading data
+sm_cenns = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,1]*100 # multiply by exposure
+rel_cenns_err = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,2]
+# removing infinite or nans from errirs
+sm_rel_cenns_err = np.nan_to_num(rel_cenns_err, nan=1.0, posinf=1.0, neginf=1.0) # replae with 1 so errors will be as large as the value
 
 
-beepy.beep(sound=5)
 
+limits0 = []
+for err in err_arr:
+    print(err)
+    limit = get_limit_var(sm_cenns, sm_rel_cenns_err, firstbin, lastbin, bkgrd_err=err)
+    print(limit)
+    limits0.append(limit)
+   
 #%% 1e threshold
 
-limits1, slimits1, bins1 = get_values(1,lastbin,err_arr)
+firstbin = 1
+#loading data
+sm_cenns = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,1]*100 # multiply by exposure
+rel_cenns_err = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,2]
+# removing infinite or nans from errirs
+sm_rel_cenns_err = np.nan_to_num(rel_cenns_err, nan=1.0, posinf=1.0, neginf=1.0) # replae with 1 so errors will be as large as the value
 
-beepy.beep(sound=5)
+
+limits1 = []
+for err in err_arr:
+    print(err)
+    limit = get_limit_var(sm_cenns, sm_rel_cenns_err, firstbin, lastbin, bkgrd_err=err)
+    print(limit)
+    limits1.append(limit)
+    
+
 
 #%% 2e threshold
 
-limits2, slimits2, bins2 = get_values(2,lastbin,err_arr)
+firstbin = 2
+#loading data
+sm_cenns = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,1]*100 # multiply by exposure
+rel_cenns_err = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,2]
+# removing infinite or nans from errirs
+sm_rel_cenns_err = np.nan_to_num(rel_cenns_err, nan=1.0, posinf=1.0, neginf=1.0) # replae with 1 so errors will be as large as the value
 
-beepy.beep(sound=5)
+
+limits2 = []
+for err in err_arr:
+    print(err)
+    limit = get_limit_var(sm_cenns, sm_rel_cenns_err, firstbin, lastbin, bkgrd_err=err)
+    print(limit)
+    limits2.append(limit)
+    
+#%%
+    
+# #!!! quick fix
+# lim = get_limit_var(sm_cenns, sm_rel_cenns_err, firstbin, lastbin, bkgrd_err=0.20)
+# print(lim)
+# limits2[15] = lim
+
 #%% 3e threshold
 
-limits3, slimits3, bins3 = get_values(3,lastbin,err_arr)
+firstbin = 3
+#loading data
+sm_cenns = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,1]*100 # multiply by exposure
+rel_cenns_err = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,2]
+# removing infinite or nans from errirs
+sm_rel_cenns_err = np.nan_to_num(rel_cenns_err, nan=1.0, posinf=1.0, neginf=1.0) # replae with 1 so errors will be as large as the value
 
-beepy.beep(sound=5)
+
+limits3 = []
+for err in err_arr:
+    print(err)
+    limit = get_limit_var(sm_cenns, sm_rel_cenns_err, firstbin, lastbin, bkgrd_err=err)
+    print(limit)
+    limits3.append(limit)
 #%% 4e threshold
 
-limits4, slimits4, bins4 = get_values(4,lastbin,err_arr)
+firstbin = 4
+#loading data
+sm_cenns = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,1]*100 # multiply by exposure
+rel_cenns_err = np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,2]
+# removing infinite or nans from errirs
+sm_rel_cenns_err = np.nan_to_num(rel_cenns_err, nan=1.0, posinf=1.0, neginf=1.0) # replae with 1 so errors will be as large as the value
 
-beepy.beep(sound=5)
 
+limits4 = []
+for err in err_arr:
+    print(err)
+    limit = get_limit_var(sm_cenns, sm_rel_cenns_err, firstbin, lastbin, bkgrd_err=err)
+    print(limit)
+    limits4.append(limit)
 #%% Plotting limit for different values of xmax
 
 fig,ax=plt.subplots(1,figsize=(20,14))
@@ -85,21 +140,29 @@ ax.plot(err_arr, limits3, '-o', linewidth=2, color='orange')
 ax.plot(err_arr, limits4, '-o', linewidth=2, color = 'purple')
 
 
-plt.ylabel('c', fontsize=26)
-plt.xlabel(r'Background uncertainty',fontsize=20)
+plt.ylabel(r'Scaling factor on SM CE$\nu$NS signal', fontsize=26)
+plt.xlabel(r'Fractional uncertainty on the radioactive backgrounds',fontsize=26)
 # y log
 ax.set_xscale('log')
+ax.set_ylim(0.0,0.3)
 
+plt.xticks(fontsize=20)
+plt.yticks(fontsize=20)
 
+ax.xaxis.set_major_formatter(matplotlib.ticker.ScalarFormatter())
+ax.set_xticks( [0.01,0.02,0.05,0.1,0.25,0.5])
+#ax.set_yticklabels([0.0,0.05,0.1,0.15,0.2,0.25,0.3],fontsize=20)
 # legend
-zeroe = mpatches.Patch(color='blue', label=r'$x_{min} = 0e$')
-onee = mpatches.Patch(color='red', label=r'$x_{min} = 1e$')
-twoe = mpatches.Patch(color='green', label=r'$x_{min} = 2e$')
-threee = mpatches.Patch(color='orange', label=r'$x_{min} = 3e$')
-foure = mpatches.Patch(color='purple', label=r'$x_{min} = 4e$')
+zeroe = mpatches.Patch(color='blue', label=r'$0$')
+onee = mpatches.Patch(color='red', label=r'$1$')
+twoe = mpatches.Patch(color='green', label=r'$2$')
+threee = mpatches.Patch(color='orange', label=r'$3$')
+foure = mpatches.Patch(color='purple', label=r'$4$')
 
 legend_elements = [zeroe, onee, twoe, threee, foure]
 
-ax.legend(handles=legend_elements,fontsize=18,frameon=False,loc='upper left')
+legend = ax.legend(handles=legend_elements,fontsize=18,frameon=False,loc='upper left', title='Electron Threshold')
+legend.get_title().set_fontsize('22') 
 
+plt.savefig('/Users/user/Documents/Plots/updated_sm_studies/bkgrderr_scaling.eps', format='eps')
 

@@ -8,6 +8,8 @@ Date: Nov 2021
 
 Calculating the likelihood for a single bin
 
+Edit June 22: Using new sm and scaling background
+
 '''
 
 
@@ -40,12 +42,15 @@ def poisson_likelihood_limit (counts,bkgrd,observed) :
        Nobs = float(optimize.root(lambda mu: poisson.cdf(observed, mu) - 0.1,observed).x)
        N_90 = Nobs - bkgrd
        return N_90/counts
-    
-ar38bkgrd = np.sum(np.loadtxt('ds20k-39Ar_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1])
 
-gammabkgrd = np.sum(np.loadtxt('ds20k-gamma_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1])
+scale = 2.5
+
+ar38bkgrd = np.sum(np.loadtxt('Data_files/ds20k-39Ar_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1])*scale
+
+gammabkgrd = np.sum(np.loadtxt('Data_files/ds20k-gamma_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1])*scale
 # neutrino signal
-cennssig = np.sum(np.loadtxt('ds20k-cenns_bkgrd.dat',delimiter=' ')[firstbin:lastbin,1])
+sm_file = '/Users/user/DarkSide/Neutrino spectrum/output_my_cevns/PE_argon_SM_A_with_err.txt'
+cennssig = np.sum(np.loadtxt(sm_file ,delimiter=' ')[firstbin:lastbin,1]*100) # multiply by exposure
 
 prediction = ar38bkgrd + gammabkgrd
 measured_values = prediction
@@ -53,10 +58,5 @@ measured_values = prediction
 # we are predicting the background
 print("Poisson likelihood limit:")
 print(poisson_likelihood_limit(cennssig, prediction, measured_values))
-
-
-# =============================================================================
-# try different method for poisson limits using chi2 to encompass error
-# =============================================================================
 
 

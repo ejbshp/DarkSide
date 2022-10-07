@@ -72,12 +72,14 @@ for p in LMuTaupaths:
         #print(temp_entry)
         df_MuTau = df_MuTau.append(temp_entry, ignore_index=True)
 
+#%% DIFF
 
 # adding in diff
 
 sm_index = bisect.bisect_left(sm_er, 0.1e-6)
 
 index = bisect.bisect_left(df_MuTau.iloc[1].ERs, 0.1e-6)
+print(np.trapz(sm_spec[sm_index:], sm_er[sm_index:]))
 df_MuTau['diff'] = df_MuTau.apply(lambda x: np.trapz(x.spec[index:], x.ERs[index:])/ np.trapz(sm_spec[sm_index:], sm_er[sm_index:]), axis=1)
 
 diffs = df_MuTau['diff']
@@ -104,6 +106,8 @@ diffs = df_MuTau['diff']
 # # check that the values have been added
 # print( df_MuTau[ (df_MuTau.pe_spec.notnull()) ] )
 
+
+
 #%% Grid values
 #Picking values of g_x and M_A for the grid
 
@@ -120,6 +124,9 @@ m_values = np.logspace(np.log10(1e-3),np.log10(1),num=100)
 
 
 
+plt.plot(m_values,g_values, 'o', markersize=2)
+plt.xscale('log')
+plt.yscale('log')
 
 
 
@@ -128,32 +135,30 @@ m_values = np.logspace(np.log10(1e-3),np.log10(1),num=100)
 
 
 
-
-
-#%% Get values which haven't been processed
-# index of values that I sampled less for for the sake of time
-less_list = []
-#TODO add if statement so I don't redo sapling for data I already have
-import os.path
-count = 0
-# loop through all the values and add to the data frame
-for i in range(len(g_values)):
-    count += 1
-    # get pair from list
-    g = g_values[i]
-    m = m_values[i]
+# #%% Get values which haven't been processed
+# # index of values that I sampled less for for the sake of time
+# less_list = []
+# #TODO add if statement so I don't redo sapling for data I already have
+# import os.path
+# count = 0
+# # loop through all the values and add to the data frame
+# for i in range(len(g_values)):
+#     count += 1
+#     # get pair from list
+#     g = g_values[i]
+#     m = m_values[i]
     
-    # get filename
-    filename = 'output_grid/mutau_pe_spec_' + str(g) + '_' + str(m) + '.txt'
+#     # get filename
+#     filename = 'output_grid/mutau_pe_spec_' + str(g) + '_' + str(m) + '.txt'
 
-    # check if this has been processed before
-    if os.path.exists(filename) == False:
-        # file exists
-        print('no file with this name ')
-        # add index to list fmi
-        less_list.append(i)
-    else:
-        print(' ')
+#     # check if this has been processed before
+#     if os.path.exists(filename) == False:
+#         # file exists
+#         print('no file with this name ')
+#         # add index to list fmi
+#         less_list.append(i)
+#     else:
+#         print(' ')
         
 
 #%% Loop through values
@@ -172,7 +177,7 @@ for i in range(len(g_values)):
     # get diff for these values of g and m
     df_index = getindex(g, m)
     # skip if diff isn't interesting
-    if df_MuTau.loc[df_index, 'diff'] > 2.0 or df_MuTau.loc[df_index, 'diff'] < 1.1:
+    if df_MuTau.loc[df_index, 'diff'] > 10.0 or df_MuTau.loc[df_index, 'diff'] < 1.05:
         continue
     
     # get filename
@@ -189,7 +194,9 @@ for i in range(len(g_values)):
         er = df_MuTau.ERs[index]
         
         # convert spec to pe
-        cev, bins, err = spectope(er, spec)
+        if df_MuTau.loc[df_index, 'diff'] > 2.0: mults=1
+        else: mults=5000
+        cev, bins, err = spectope(er, spec, mult=mults)
         
         # saving to file
         file = open(filename, 'w')

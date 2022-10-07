@@ -61,7 +61,7 @@ er_50_list = []
 
 # define variables
 # multiply to sample more - smooth things out
-mult = 10000
+mult = 5000
 lower_threshold = 0.1 #kev
 # who is the input spec from
 data_source = 'A' # andrew

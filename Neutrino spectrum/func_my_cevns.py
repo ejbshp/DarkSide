@@ -1,3 +1,7 @@
+
+
+
+
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
@@ -8,6 +12,8 @@ author: EB
 Function that onverts neutrino spectrum data from recoil energy into Photoelectron
 
 May 12 2022: Function now returns stat error of the cevns sig
+
+Aug 2022: Not mult upwards for spec which are 2x greater than the sm
 
 """
 
@@ -36,9 +42,12 @@ df = pd.read_csv('data/ds20k_s2_binning_info.csv', usecols=col_list)
 s2_pe_bin_centres = df.linear_center_ne.to_list()
 s2_start_pe = df.start_ne.to_list()
 
+# load standard model data
+sm_er , sm_spec = np.loadtxt('data/argon_spec.txt', delimiter=' ')
 
 
-def spectope(er, spec):
+
+def spectope(er, spec, mult=5000):
     '''
     Converts neutrino spectrum to be in terms of photoelectrons
     using the detector response
@@ -60,18 +69,32 @@ def spectope(er, spec):
     pe_list = []
     
     # define variables
-    # multiply to sample more - smooth things out
-    mult = 1000
+    
     lower_threshold = 0.1 #kev
     # to get last probs in response map
     ran = False
     
+   
+    
+    # if spec is 2x the size of the sm spec then don't need to multiply
+    
+    # getting diff
+    sm_index = bisect.bisect_left(sm_er, 0.1e-6)
+    index = bisect.bisect_left(er, 0.1e-6)
+    trapz_sm = np.trapz(sm_spec[sm_index:], sm_er[sm_index:])
+    trapz = np.trapz(spec[index:], er[index:])
+    diff = trapz / trapz_sm
+    print('func diff', diff)
+    if diff > 2.0:
+        mult = 1
+        print('diffffff')
+        
     # convert er from GeV to KeV
     er = er * 1e6
     
     # getting PE count for the data given - loop though every energy
     for j in range(len(er)-1): # can't calculate diff for last point
-        print(j)
+        # print(j)
         # get energy and rate at that point
         energy = er[j]
         rate = spec[j]
